@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "autojs",
+            "request": "launch",
+            "stopOnEntry": true,
+            "device": "a62482f31b5a651f",
+            "name": "[Auto.js Pro调试]Redmi"
+        }
+    ]
+}

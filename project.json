@@ -13,17 +13,17 @@
     "displaySplash": true,
     "hideLogs": false,
     "splashIcon": "res/splashIcon.jpeg",
-    "splashText": "Powered by 韭菜饺子QwQ, Modified by 逆熵之光",
+    "splashText": "Powered by 蹦蹦炸弹Pro, Modified by 逆熵之光",
     "stableMode": false
   },
-  "main": "PRTS作战代理.js",
-  "name": "PRTS作战代理",
+  "main": "PRTS.js",
+  "name": "PRTS debug",
   "optimization": {
     "removeAccessibilityService": false,
     "removeOpenCv": false,
     "unusedResources": false
   },
-  "packageName": "com.prts.arknights",
+  "packageName": "com.prts.arknights.debug",
   "permissionConfig": {
     "requestListOnStartup": [
       "android.permission.WRITE_EXTERNAL_STORAGE"
@@ -31,5 +31,5 @@
   },
   "scripts": {},
   "versionCode": 1,
-  "versionName": "0.5.5"
+  "versionName": "0.6.0"
 }
