@@ -74,7 +74,7 @@ ui.start.click(() => {
         threads.start(function () { main(); });
         ready = 2;
     } else if (ready == 2) {
-        thread_stop(1);
+        thread_stop();
         ui.start.setText(" 开\n 始");
         window_main.setSize(w_width, 0);
         window_header.setSize(w_width, 0);
@@ -154,7 +154,7 @@ function main() {
         </horizontal>
     );
     window_header.setTouchable(true);
-    window_header.setPosition(0, 180);
+    window_header.setPosition(0, 150);
     window_header.setSize(w_width, 60);
     //window_header.exitOnClose();
     setInterval(() => { }, 2000);
@@ -190,7 +190,7 @@ function main() {
 
     //按钮事件
     window_main.b_start.click(() => { start_play() });
-    window_main.b_stop.click(() => { thread_stop(1) });
+    window_main.b_stop.click(() => { thread_stop() });
     window_main.b_test.click(() => { start_test() });
     window_main.b_construction.click(() => { start_construction() });
     window_main.b_credit.click(() => { start_credit() });
@@ -219,6 +219,22 @@ function main() {
 
     window_header.title.click(() => {
         set_window_status((window + 1) % 2);
+    });
+    
+    // TODO:长按拖动
+    var position;
+    window_header.title.on('touch', (e) => {
+        if (!position) {
+            position = [window_header.x - e.getRawX(), window_header.y - e.getRawY()];
+        }
+    });
+    window_header.title.on('touch_up', () => {
+        position = null;
+    });
+    window_header.title.on('touch_move', (e) => {
+        let [x, y] = position;
+        window_header.setPosition(x + e.getRawX(), y + e.getRawY());
+        window_main.setPosition(x + e.getRawX(), y + e.getRawY() + 60);
     });
 }
 
