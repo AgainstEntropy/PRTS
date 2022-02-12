@@ -217,7 +217,7 @@ function main() {
     });
     window_main.subtract.on("touch_up", () => { clearInterval(mouseTime); });
 
-    window_header.title.click(() => {
+    window_header.title.on('click', ()  => {
         set_window_status((window + 1) % 2);
     });
     
@@ -328,13 +328,13 @@ function thread_stop() {
     thread_construction_isAlive = 0;
     thread_credit_isAlive = 0;
     window_main.num.setText("0");
-    log(err);
+    console.log(`err=${err}`);
     if (err == 1) {
         window_header.title.setText("当前没有操作");
-    }
-    if (err > 5) {
+    } else if (err > 5) {
         window_header.title.setText("理智不足或网络中断");
     }
+    err = 1;
 }
 
 //检测模式
@@ -345,13 +345,11 @@ function check_mode() {
     if (p) {
         window_header.title.setText("正常识别关卡");
         sleep(200);
-        threads.start(function () {
-            set_window_status(0); // 隐藏菜单
-        });
+        set_window_status(0); // 隐藏菜单
     } else {
         window_header.title.setText("无法识别关卡");
         sleep(500);
-        thread_stop(1);
+        thread_stop();
     }
     img_start_blue.recycle();
     sleep(500);
@@ -396,8 +394,8 @@ function home(sure) {
 
 //隐藏、显示菜单
 function set_window_status(status) { // 0为隐藏，1为显示
-    window = status; 
-    window_main.setSize(status * w_width, w_height);    
+    window = status;
+    window_main.setSize(status * w_width, w_height)  
 }
 
 //返回首页
@@ -429,27 +427,41 @@ function play(num) {
     var img_start_red = images.read("res/img/开始行动红.jpg");
     var img_over = images.read("res/img/行动结束.jpg");
 
-    // if (debug){
-    //     console.show();
-    // }
+    var p_blue, p_red, p_over;
+    var th;
 
     var b_mode = device.getBrightnessMode();
     var b = device.getBrightness();
     device.setBrightnessMode(0); // 设为手动模式
 
-    check_mode();
-    var p;
+    p_blue = images.findImage(captureScreen(), img_start_blue);
+    sleep(100);
+    if (p_blue) {
+        window_header.title.setText("正常识别关卡");
+        sleep(500);
+        th = threads.start(function () {
+            set_window_status(0); // 隐藏菜单
+        });
+        th.waitFor();
+        th.interrupt();
+    } else {
+        window_header.title.setText("无法识别关卡");
+        sleep(200);
+        thread_stop();
+    }
+    
     for (var i = 1; i <= num; i++) {
         window_header.title.setText("检测蓝色开始行动按钮");
         while (true) {
-            p = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
+            p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
             sleep(200);
-            if (p) {
-                click(p.x, p.y + 15);
+            if (p_blue) {
+                click(p_blue.x, p_blue.y + 15);
+                p_blue = null;
                 sleep(1000);
-                p = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
+                p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
                 sleep(200);
-                if (p) {
+                if (p_blue) {
                 } else {
                     break;
                 }
@@ -469,14 +481,14 @@ function play(num) {
 
         window_header.title.setText("检测红色开始行动按钮");
         while (true) {
-            p = images.findImage(captureScreen(), img_start_red); // 红色开始行动
+            p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
             sleep(200);
-            if (p) {
-                click(p.x + 30, p.y);
-                sleep(1000);
-                p = images.findImage(captureScreen(), img_start_red); // 红色开始行动
-                sleep(200);
-                if (p) {
+            if (p_red) {
+                click(p_red.x + 30, p_red.y);
+                p_red = null;
+                sleep(2000);
+                p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
+                if (p_red) {
                 } else {
                     break;
                 }
@@ -496,7 +508,9 @@ function play(num) {
 
         window_header.title.setText(`当前第${i}次代理`);
         sleep(5 * 1000);  //延迟5s调整屏幕亮度
-        device.setBrightness(Math.min(50, b / 2));
+        if (i == 1){
+            device.setBrightness(Math.min(50, b / 2));
+        }
         sleep(35 * 1000);  // 延迟35s检测是否战斗结算
 
         while (true) {
@@ -508,26 +522,91 @@ function play(num) {
                 click(p_over.x + 80, p_over.y);
             } else {
                 sleep(3000);
-                p = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
-                if (p) {
+                p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
+                if (p_blue) {
                     break;
                 }
             }
         }
     }
-    set_window_status(1); // 结束作战时打开菜单
-    device.setBrightness(b);  //恢复原始亮度
-    device.setBrightnessMode(b_mode);  //恢复原始亮度模式
-    
     // 回收所有图片
     img_start_blue.recycle();
     img_start_red.recycle();
     img_over.recycle();
+    
+    th = threads.start(function () {
+        set_window_status(1); // 结束作战时打开菜单
+    });
+    th.waitFor();
+    th.interrupt();
 
-    sleep(1000);
     thread_stop();
+
+    device.setBrightness(b);  //恢复原始亮度
+    device.setBrightnessMode(b_mode);  //恢复原始亮度模式
 }
 
+//领取信用
+function credit() {
+    err = 1;
+    var p;
+    var i = 0; // 重复检测次数
+    var time_success = 0; // 成功领取次数
+    thread_credit_isAlive = 1;
+    window_header.title.setText("检测是否首页");
+    back2main();
+    sleep(500 + random(-20, 20));
+
+    click(device.height /4 + random(-10, 10), device.width / 5 * 4 + random(-10, 10)); //点击首页的好友
+    window_header.title.setText("开始领取信用");
+    set_window_status(0); // 隐藏菜单
+    sleep(1000 + random(-20, 20));
+
+    check_back();
+    sleep(500);
+
+    click(device.height / 10 + random(-10, 10), device.width / 7 * 2 + random(-10, 10)); //点击好友列表
+    sleep(3000 + random(-20, 20));
+
+    click(device.height * 0.65 + random(-10, 10), device.width * 0.2 + random(-10, 10)); //访问第一个好友的基建
+    sleep(1000 + random(-20, 20));
+
+    check_back();
+
+    while (true) {
+        p = images.findMultiColors(captureScreen(), "#D15806", [[10, 0, "#D15806"], [0, 10, "#D15806"]], { // 访问下位：亮橙色
+            region: [device.height / 5 * 4, device.width / 5 * 4, device.height / 5, device.width / 5],
+            threshold: 1
+        });
+        sleep(500);
+        if (p) { 
+            sleep(500 + random(-50, 50));
+            i = 0;
+            time_success++;
+            click(p.x + random(-10, 10), p.y + random(-10, 10));
+            sleep(500 + random(-50, 50));
+            if (time_success >= 10){
+                break;
+            }
+        } else if (i <= 4){
+            i++;
+            sleep(1000 + random(-50, 50));
+            continue;
+        } else{
+            break;
+        }
+    }
+
+    window_header.title.setText("信用领取完成");
+    sleep(2000);
+    check_back();
+    window_header.title.setText("返回首页");
+    sleep(500);
+    home(1);
+    set_window_status(1);
+
+    thread_stop();
+}
 
 //领取奖励
 function reward() {
@@ -647,73 +726,10 @@ function reward() {
     thread_stop();
 }
 
-//领取信用
-function credit() {
-    err = 1;
-    var p;
-    var i = 0; // 重复检测次数
-    var j = 0; // 成功领取次数
-    thread_credit_isAlive = 1;
-    window_header.title.setText("检测是否首页");
-    back2main();
-    sleep(500 + random(-20, 20));
-
-    click(device.height /4 + random(-10, 10), device.width / 5 * 4 + random(-10, 10)); //点击首页的好友
-    window_header.title.setText("开始领取信用");
-    set_window_status(0); // 隐藏菜单
-    sleep(1000 + random(-20, 20));
-
-    check_back();
-    sleep(500);
-
-    click(device.height / 10 + random(-10, 10), device.width / 7 * 2 + random(-10, 10)); //点击好友列表
-    sleep(3000 + random(-20, 20));
-
-    click(device.height * 0.65 + random(-10, 10), device.width * 0.2 + random(-10, 10)); //访问第一个好友的基建
-    sleep(1000 + random(-20, 20));
-
-    check_back();
-
-    while (true) {
-        p = images.findMultiColors(captureScreen(), "#D15806", [[10, 0, "#D15806"], [0, 10, "#D15806"]], { // 访问下位：亮橙色
-            region: [device.height / 5 * 4, device.width / 5 * 4, device.height / 5, device.width / 5],
-            threshold: 1
-        });
-        sleep(500);
-        if (p) { 
-            sleep(500 + random(-50, 50));
-            i = 0;
-            j++;
-            click(p.x + random(-10, 10), p.y + random(-10, 10));
-            sleep(500 + random(-50, 50));
-            if (j >= 10){
-                break;
-            }
-        } else if (i <= 4){
-            i++;
-            sleep(1000 + random(-50, 50));
-            continue;
-        } else{
-            break;
-        }
-    }
-
-    window_header.title.setText("信用领取完成");
-    sleep(2000);
-    check_back();
-    window_header.title.setText("返回首页");
-    sleep(500);
-    home(1);
-    set_window_status(1);
-
-    thread_stop();
-}
-
-
 //收取基建
 function construction() {
     err = 1; 
-    var j = false; // 判断基建是否需要收取
+    var time_success = false; // 判断基建是否需要收取
     var p;
 
     thread_construction_isAlive = 1;
@@ -732,14 +748,14 @@ function construction() {
             set_window_status(0); // 隐藏菜单
             click(p.x + random(-30, -50), p.y + random(20, 50));
             sleep(200);
-            j = true;
+            time_success = true;
             break;
         } else{
             window_header.title.setText("基建无需收取");
             break;
         }
     }
-    if (j) {
+    if (time_success) {
         check_back();
         sleep(2500);
         click(device.height * 0.93, device.width * 0.12);
