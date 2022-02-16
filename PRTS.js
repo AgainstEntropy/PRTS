@@ -395,7 +395,9 @@ function home(sure) {
 //隐藏、显示菜单
 function set_window_status(status) { // 0为隐藏，1为显示
     window = status;
-    window_main.setSize(status * w_width, w_height)  
+    ui.run(()=>{
+        window_main.setSize(status * w_width, w_height);
+    })
 }
 
 //返回首页
@@ -425,25 +427,21 @@ function play(num) {
     // 读取图片
     var img_start_blue = images.read("res/img/开始行动蓝.jpg");
     var img_start_red = images.read("res/img/开始行动红.jpg");
+    var img_takeover = images.read("res/img/接管作战.jpg");
     var img_over = images.read("res/img/行动结束.jpg");
 
     var p_blue, p_red, p_over;
-    var th;
 
     var b_mode = device.getBrightnessMode();
     var b = device.getBrightness();
-    device.setBrightnessMode(0); // 设为手动模式
+    device.setBrightnessMode(0); // 亮度设为手动模式
 
     p_blue = images.findImage(captureScreen(), img_start_blue);
     sleep(100);
     if (p_blue) {
         window_header.title.setText("正常识别关卡");
         sleep(500);
-        th = threads.start(function () {
-            set_window_status(0); // 隐藏菜单
-        });
-        th.waitFor();
-        th.interrupt();
+        set_window_status(0); // 隐藏菜单
     } else {
         window_header.title.setText("无法识别关卡");
         sleep(200);
@@ -454,48 +452,62 @@ function play(num) {
         window_header.title.setText("检测蓝色开始行动按钮");
         while (true) {
             p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
-            sleep(200);
+            sleep(100);
             if (p_blue) {
                 click(p_blue.x, p_blue.y + 15);
                 p_blue = null;
-                sleep(1000);
+                sleep(500);
                 p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
-                sleep(200);
+                sleep(100);
                 if (p_blue) {
-                } else {
-                    break;
+                    err++;
+                    if (err > 5) {
+                        window_header.title.setText("未点击蓝色开始行动");
+                        break;
+                    }
                 }
             } else {
-                err++;
-                if (err > 5) {
-                    window_header.title.setText("未检测到蓝色开始行动");
+                p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
+                sleep(100);
+                if (p_red) {
                     break;
+                } else {
+                    err++;
+                    if (err > 5) {
+                        window_header.title.setText("未检测到蓝色开始行动");
+                        break;
+                    }
                 }
             }
         }
         if (err > 5) {
             break;
         } else {
-            err = 1
+            err = 1;
         }
 
         window_header.title.setText("检测红色开始行动按钮");
         while (true) {
             p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
-            sleep(200);
+            sleep(100);
             if (p_red) {
                 click(p_red.x + 30, p_red.y);
                 p_red = null;
-                sleep(2000);
+                sleep(1000);
                 p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
                 if (p_red) {
+                    err++
+                    if (err > 5) {
+                        window_header.title.setText("未正常进入关卡");
+                        break;
+                    }
                 } else {
                     break;
                 }
             } else {
                 err++;
                 if (err > 5) {
-                    // window_header.title.setText("未检测到红色开始行动");
+                    window_header.title.setText("未检测到红色开始行动");
                     break;
                 }
             }
@@ -507,15 +519,15 @@ function play(num) {
         }
 
         window_header.title.setText(`当前第${i}次代理`);
-        sleep(5 * 1000);  //延迟5s调整屏幕亮度
+        sleep(10 * 1000);  //延迟5s调整屏幕亮度
         if (i == 1){
             device.setBrightness(Math.min(50, b / 2));
         }
-        sleep(35 * 1000);  // 延迟35s检测是否战斗结算
+        sleep(30 * 1000);  // 延迟35s检测是否战斗结算
 
         while (true) {
             p_over = images.findImage(captureScreen(), img_over); // 检测是否结算页面
-            sleep(200);
+            sleep(100);
             if (p_over) {
                 window_header.title.setText("正在进行结算");
                 sleep(1000);
@@ -532,14 +544,10 @@ function play(num) {
     // 回收所有图片
     img_start_blue.recycle();
     img_start_red.recycle();
+    img_takeover.recycle();
     img_over.recycle();
     
-    th = threads.start(function () {
-        set_window_status(1); // 结束作战时打开菜单
-    });
-    th.waitFor();
-    th.interrupt();
-
+    set_window_status(1); // 结束作战时打开菜单
     thread_stop();
 
     device.setBrightness(b);  //恢复原始亮度
