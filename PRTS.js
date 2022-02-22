@@ -63,7 +63,7 @@ ui.use.setText(" 说\n 明");
 ui.info.setText(" 关\n 于");
 
 // 选取随机背景图片
-ui.start.attr("bg", background[0]); 
+ui.start.attr("bg", background[0]);
 ui.use.attr("bg", background[1]);
 ui.info.attr("bg", background[2]);
 
@@ -129,7 +129,7 @@ function main() {
     //请求截图权限
     if (requestScreenCapture(true)) {
         toast("请求截图成功")
-        setTimeout(function() {
+        setTimeout(function () {
             app.launchApp("arknights-taptap-308") //延迟2s，启动明日方舟
             // home();
         }, 2000)
@@ -217,10 +217,10 @@ function main() {
     });
     window_main.subtract.on("touch_up", () => { clearInterval(mouseTime); });
 
-    window_header.title.on('click', ()  => {
+    window_header.title.on('click', () => {
         set_window_status((window + 1) % 2);
     });
-    
+
     // 悬浮窗拖动
     var position;
     window_header.title.on('touch', (e) => {
@@ -287,8 +287,8 @@ function start_test() {
     num = window_main.num.getText();
     if (thread_play_isAlive + thread_test_isAlive + thread_construction_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
-            test_findimage();
-            // test_other();
+            // test_findimage();
+            test_other();
         });
     }
     else {
@@ -386,7 +386,7 @@ function home(sure) {
     click(270 + random(-10, 10), 410 + random(-10, 10));
     if (sure) {
         sleep(700 + random(-20, 20));
-        click(device.height / 5 * 3 + random(-10, 10), device.width / 10 * 7 + random(-10, 10));    
+        click(device.height / 5 * 3 + random(-10, 10), device.width / 10 * 7 + random(-10, 10));
     }
 
     set_window_status(1);
@@ -417,6 +417,43 @@ function back2main() {
     img_geer.recycle();
 }
 
+//点击api
+function findImage_until_click(img1, img2, img1_name, bias, delta_t) {
+    // window_header.title.setText(`正在检测${img1_name}`);
+    var p1, p2;
+    while (true) {
+        p1 = images.findImage(captureScreen(), img1); // 第一个图
+        sleep(100);
+        if (p1) {
+            click(p1.x + bias.x, p1.y + bias.y);
+            p1 = null;
+            sleep(500);
+            p1 = images.findImage(captureScreen(), img1); // 第一个图
+            sleep(100);
+            if (p1) {
+                err++;
+                if (err > 5) {
+                    window_header.title.setText(`未点击${img1_name}按钮`);
+                    break;
+                }
+            }
+        } else {
+            p2 = images.findImage(captureScreen(), img2); // 第二个图
+            sleep(100);
+            if (p2) {
+                break;
+            } else {
+                err++;
+                if (err > 5) {
+                    window_header.title.setText(`未检测到${img1_name}按钮`);
+                    break;
+                }
+            }
+        }
+        sleep(delta_t);
+    }
+}
+
 //代理线程
 function play(num) {
     err = 1;
@@ -439,7 +476,7 @@ function play(num) {
     if (p_blue) {
         window_header.title.setText("正常识别关卡");
         sleep(500);
-        ui.run(()=>{
+        ui.run(() => {
             set_window_status(0); // 隐藏菜单
         })
     } else {
@@ -447,7 +484,7 @@ function play(num) {
         sleep(200);
         thread_stop();
     }
-    
+
     for (var i = 1; i <= num; i++) {
         window_header.title.setText("检测蓝色开始行动按钮");
         while (true) {
@@ -520,7 +557,7 @@ function play(num) {
 
         window_header.title.setText(`当前第${i}次代理`);
         sleep(10 * 1000);  //延迟5s调整屏幕亮度
-        if (i == 1){
+        if (i == 1) {
             device.setBrightness(Math.min(50, b / 2));
         }
         sleep(30 * 1000);  // 延迟35s检测是否战斗结算
@@ -546,8 +583,8 @@ function play(num) {
     img_start_red.recycle();
     img_takeover.recycle();
     img_over.recycle();
-    
-    ui.run(()=>{
+
+    ui.run(() => {
         set_window_status(1); // 结束作战时打开菜单
     })
     thread_stop();
@@ -559,241 +596,63 @@ function play(num) {
 //领取信用
 function credit() {
     err = 1;
-    var p;
-    var i = 0; // 重复检测次数
     var time_success = 0; // 成功领取次数
     thread_credit_isAlive = 1;
     window_header.title.setText("检测是否首页");
     back2main();
-    sleep(500 + random(-20, 20));
 
-    click(device.height /4 + random(-10, 10), device.width / 5 * 4 + random(-10, 10)); //点击首页的好友
-    window_header.title.setText("开始领取信用");
-    ui.run(()=>{
-        set_window_status(0); // 隐藏菜单
+    thread_test_isAlive = 1
+    var img_main_friend = images.read("res/img/首页好友.jpg");
+    var img_friend_list_grey = images.read("res/img/好友列表黑.jpg");
+    var img_friend_list_white = images.read("res/img/好友列表白.jpg");
+    var img_visit_construction = images.read("res/img/访问基建.jpg");
+    var img_next_orange = images.read("res/img/访问下位橙.jpg");
+    var img_next_grey = images.read("res/img/访问下位灰.jpg");
+    var img_obtain_credit = images.read("res/img/获得信用.jpg");
+
+    window_header.title.setText("正在测试找图");
+    ui.run(() => {
+        set_window_status(0);
     })
-    sleep(1000 + random(-20, 20));
+    // console.show();
+    back2main();
 
-    check_back();
-    sleep(500);
+    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友", {'x':15, 'y':15}, 400);
 
-    click(device.height / 10 + random(-10, 10), device.width / 7 * 2 + random(-10, 10)); //点击好友列表
-    sleep(3000 + random(-20, 20));
+    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表", {'x':15, 'y':15}, 400)
+    
+    findImage_until_click(img_visit_construction, img_next_orange, "访问基建", {'x':15, 'y':15}, 1000);
 
-    click(device.height * 0.65 + random(-10, 10), device.width * 0.2 + random(-10, 10)); //访问第一个好友的基建
-    sleep(1000 + random(-20, 20));
-
-    check_back();
-
-    while (true) {
-        p = images.findMultiColors(captureScreen(), "#D15806", [[10, 0, "#D15806"], [0, 10, "#D15806"]], { // 访问下位：亮橙色
-            region: [device.height / 5 * 4, device.width / 5 * 4, device.height / 5, device.width / 5],
-            threshold: 1
-        });
-        sleep(500);
-        if (p) { 
-            sleep(500 + random(-50, 50));
-            i = 0;
-            time_success++;
-            click(p.x + random(-10, 10), p.y + random(-10, 10));
-            sleep(500 + random(-50, 50));
-            if (time_success >= 10){
-                break;
-            }
-        } else if (i <= 4){
-            i++;
-            sleep(1000 + random(-50, 50));
-            continue;
-        } else{
+    for (var i=1; i<=10; i++){
+        window_header.title.setText(`第${i}次领取`);
+        findImage_until_click(img_next_orange, img_obtain_credit, "橙色访问下位", {'x':15, 'y':15}, 1200);
+        if (err > 5) {
             break;
+        } else {
+            err = 1
         }
+        sleep(1000);
     }
 
+
+    img_main_friend.recycle();
+    img_friend_list_grey.recycle();
+    img_friend_list_white.recycle();
+    img_visit_construction.recycle();
+    img_next_orange.recycle();
+    img_next_grey.recycle();
+
     window_header.title.setText("信用领取完成");
-    sleep(2000);
-    check_back();
-    window_header.title.setText("返回首页");
-    sleep(500);
-    home(1);
-    ui.run(()=>{
+    ui.run(() => {
         set_window_status(1);
     })
 
     thread_stop();
 }
 
-//领取奖励
-function reward() {
-    err = 1;
-    var p;
-    var no_reward = false;
-    thread_test_isAlive = 1
-    window_header.title.setText("检测是否首页");
-    back2main();
-    while (true) {
-        p = images.findMultiColors(captureScreen(), "#ffffff", [[20, 0, "#ffffff"], [0, 20, "#ffffff"]], {
-            region: [0, 0, 150, 150],
-            threshold: 1
-        });
-        sleep(100);
-        if (p) { break; }
-    }
-    window_header.title.setText("开始领取任务奖励");
-    while (true) {
-        p = images.findMultiColors(captureScreen(), "#ff5e19", [[1, 0, "#e66229"], [1, 10, "#e66229"]], { // 任务完成数：橙色，任务：深橙色
-            region: [device.height / 2, (device.width / 3) * 2],
-            threshold: 1
-        });
-        if (p) {
-            click(p.x + random(-20, 0), p.y + random(0, 20));
-            sleep(1000);
-            p = images.findMultiColors(captureScreen(), "#313131", [[-10, -10, "#313131"], [10, 10, "#313131"]], { // 深灰色
-                region: [0, 0, 150, 150],
-                threshold: 1
-            });
-            if (p) {
-                break;
-            }
-        } else {
-            window_header.title.setText("没有可领取的奖励");
-            sleep(1000);
-            // thread_stop();
-            no_reward = true;
-            break;
-        }
-    }
-    while (true) {
-        if (no_reward) { break; }
-        p = images.findMultiColors(captureScreen(), "#0098dc", [[50, 50, "#0098dc"], [100, 100, "#0098dc"]], { // 蓝色：任务奖励
-            region: [device.height / 2, 0, device.height / 2, device.width / 2],
-            threshold: 1
-        });
-        sleep(50);
-        if (p) {
-            sleep(50);
-            //点击领取
-            click(p.x + random(0, 10), p.y + random(0, 10));
-            sleep(100);
-        } else {
-            for (var i = 1; i <= 6; i++) {
-                sleep(250);
-                click((device.height / 2 + random(0, 10)), ((device.width / 3) * 2 + random(0, 10)));
-                sleep(250);
-                p = images.findMultiColors(captureScreen(), "#0098dc", [[50, 50, "#0098dc"], [100, 100, "#0098dc"]], {
-                    region: [device.height / 2, 0, device.height / 2, device.width / 2],
-                    threshold: 1
-                });
-                if (p) { break; }
-            }
-            p = images.findMultiColors(captureScreen(), "#0098dc", [[50, 50, "#0098dc"], [100, 100, "#0098dc"]], {
-                region: [device.height / 2, 0, device.height / 2, device.width / 2],
-                threshold: 1
-            });
-            sleep(50);
-            if (p) { }
-            else {
-                for (var i = 1; i <= 3; i++) {
-                    sleep(200)
-                    click(1493 + random(0, 5), 65 + random(0, 5));
-                }
-                break;
-            }
-        }
-    }
-    while (true) {
-        if (no_reward) { break; }
-        p = images.findMultiColors(captureScreen(), "#0098dc", [[50, 50, "#0098dc"], [100, 100, "#0098dc"]], {
-            region: [device.height / 2, 0, device.height / 2, device.width / 2],
-            threshold: 1
-        });
-        sleep(50);
-        if (p) {
-            sleep(50);
-            //点击领取
-            click(p.x + random(0, 10), p.y + random(0, 10));
-            sleep(100);
-        } else {
-            for (var i = 1; i <= 6; i++) {
-                sleep(250);
-                click((device.height / 2 + random(0, 10)), ((device.width / 3) * 2 + random(0, 10)));
-                sleep(250);
-                p = images.findMultiColors(captureScreen(), "#0098dc", [[50, 50, "#0098dc"], [100, 100, "#0098dc"]], {
-                    region: [device.height / 2, 0, device.height / 2, device.width / 2],
-                    threshold: 1
-                });
-                if (p) { break; }
-            }
-            p = images.findMultiColors(captureScreen(), "#0098dc", [[50, 50, "#0098dc"], [100, 100, "#0098dc"]], {
-                region: [device.height / 2, 0, device.height / 2, device.width / 2],
-                threshold: 1
-            });
-            sleep(50);
-            if (p) { }
-            else {
-                break;
-            }
-        }
-    }
-    if (!no_reward) { 
-        click_back();
-    }
-    thread_stop();
-}
-
-//收取基建
-function construction() {
-    err = 1; 
-    var time_success = false; // 判断基建是否需要收取
-    var p;
-
-    thread_construction_isAlive = 1;
-    window_header.title.setText("检测是否首页");
-    back2main();
-    sleep(500 + random(-20, 20));
-
-    while (true) {
-        p = images.findMultiColors(captureScreen(), "#1f9bd3", [[0, 10, "#d4d5d7"], [0, -10, "#ffffff"]], { // 基建提醒标志
-            region: [device.height / 7 * 5, device.width / 5 * 4 - 20, device.height / 7 * 2, device.width / 5 + 20],
-            threshold: 1
-        });
-        sleep(100);
-        if (p) { 
-            window_header.title.setText("开始收取基建");
-            set_window_status(0); // 隐藏菜单
-            click(p.x + random(-30, -50), p.y + random(20, 50));
-            sleep(200);
-            time_success = true;
-            break;
-        } else{
-            window_header.title.setText("基建无需收取");
-            break;
-        }
-    }
-    if (time_success) {
-        check_back();
-        sleep(2500);
-        click(device.height * 0.93, device.width * 0.12);
-        for (var i = 0; i <= 3; i++) {
-            sleep(2000);
-            click(device.height * 0.15, device.width * 0.95);
-        }
-        window_header.title.setText("基建收取完成");
-        // home(1);
-    }
-
-    sleep(1000);
-    thread_stop();
-
-}
-
 //测试
 function test_findimage() {
-    thread_test_isAlive = 1
-    window_header.title.setText("正在测试找图");
-    console.show();
-    back2main();
-
-    thread_stop();
+    
 }
 
 function test_other() {
