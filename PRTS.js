@@ -221,7 +221,7 @@ function main() {
         set_window_status((window + 1) % 2);
     });
     
-    // TODO:长按拖动
+    // 悬浮窗拖动
     var position;
     window_header.title.on('touch', (e) => {
         if (!position) {
@@ -287,8 +287,8 @@ function start_test() {
     num = window_main.num.getText();
     if (thread_play_isAlive + thread_test_isAlive + thread_construction_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
-            // test_findimage();
-            test_other();
+            test_findimage();
+            // test_other();
         });
     }
     else {
@@ -328,7 +328,7 @@ function thread_stop() {
     thread_construction_isAlive = 0;
     thread_credit_isAlive = 0;
     window_main.num.setText("0");
-    console.log(`err=${err}`);
+
     if (err == 1) {
         window_header.title.setText("当前没有操作");
     } else if (err > 5) {
@@ -395,9 +395,7 @@ function home(sure) {
 //隐藏、显示菜单
 function set_window_status(status) { // 0为隐藏，1为显示
     window = status;
-    ui.run(()=>{
-        window_main.setSize(status * w_width, w_height);
-    })
+    window_main.setSize(status * w_width, w_height);
 }
 
 //返回首页
@@ -441,7 +439,9 @@ function play(num) {
     if (p_blue) {
         window_header.title.setText("正常识别关卡");
         sleep(500);
-        set_window_status(0); // 隐藏菜单
+        ui.run(()=>{
+            set_window_status(0); // 隐藏菜单
+        })
     } else {
         window_header.title.setText("无法识别关卡");
         sleep(200);
@@ -547,7 +547,9 @@ function play(num) {
     img_takeover.recycle();
     img_over.recycle();
     
-    set_window_status(1); // 结束作战时打开菜单
+    ui.run(()=>{
+        set_window_status(1); // 结束作战时打开菜单
+    })
     thread_stop();
 
     device.setBrightness(b);  //恢复原始亮度
@@ -567,7 +569,9 @@ function credit() {
 
     click(device.height /4 + random(-10, 10), device.width / 5 * 4 + random(-10, 10)); //点击首页的好友
     window_header.title.setText("开始领取信用");
-    set_window_status(0); // 隐藏菜单
+    ui.run(()=>{
+        set_window_status(0); // 隐藏菜单
+    })
     sleep(1000 + random(-20, 20));
 
     check_back();
@@ -611,7 +615,9 @@ function credit() {
     window_header.title.setText("返回首页");
     sleep(500);
     home(1);
-    set_window_status(1);
+    ui.run(()=>{
+        set_window_status(1);
+    })
 
     thread_stop();
 }
@@ -785,29 +791,7 @@ function test_findimage() {
     thread_test_isAlive = 1
     window_header.title.setText("正在测试找图");
     console.show();
-    var p;
-    var img_test = images.read("res/img/行动结束.jpg");
-    while (true) {
-        p = images.findImage(captureScreen(), img_test);
-        console.log(p);
-
-        if (p) {
-            console.log("已检测到！");
-            img_test.recycle();
-            sleep(200);
-            if (debug){
-                put_block(p.x, p.y, 20);
-            }
-            threads.start(function () {
-                set_window_status(0); // 隐藏菜单
-            });
-            click(p.x + 50, p.y + 30);
-            break;
-        } else {
-            console.log("未检测到！");
-        }
-        sleep(1000);
-    }
+    back2main();
 
     thread_stop();
 }
