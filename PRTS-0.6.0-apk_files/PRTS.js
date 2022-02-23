@@ -309,8 +309,8 @@ function start_credit() {
 function thread_stop() {
     threads.shutDownAll();
     thread_play_isAlive = 0;
-    thread_test_isAlive = 0;
     thread_credit_isAlive = 0;
+    thread_test_isAlive = 0;
     window_main.num.setText("0");
 
     if (err == 1) {
@@ -568,16 +568,14 @@ function credit() {
     // console.show();
     back2main();
 
-    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友",
-        bias = { 'x': 15, 'y': 15 }, delta_t = 400);
+    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友");
     if (err > 5) {
         thread_stop;
     } else {
         err = 1;
     }
 
-    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表",
-        bias = { 'x': 15, 'y': 15 }, delta_t = 400);
+    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表");
     if (err > 5) {
         thread_stop;
     } else {
@@ -585,7 +583,9 @@ function credit() {
     }
 
     findImage_until_click(img_visit_construction, null, "访问基建",
-        bias = { 'x': 15, 'y': 15 }, delta_t = 400, end_delay = 3000);
+        config = {
+            end_delay: 4000
+        });
     if (err > 5) {
         thread_stop;
     } else {
@@ -595,14 +595,17 @@ function credit() {
     for (var i = 1; i <= 10; i++) {
         window_header.title.setText(`第${i}次领取`);
         findImage_until_click(img_next_orange, null, "橙色访问下位",
-            bias = { 'x': 15, 'y': 15 }, delta_t = 3000, end_delay = 2000);
+            config = {
+                click_bias: { x: 15, y: 15 },
+                delta_t: 3000,
+                end_delay: 2000
+            });
         if (err > 5) {
             break;
         } else {
             err = 1
         }
     }
-
 
     img_main_friend.recycle();
     img_friend_list_grey.recycle();
@@ -671,7 +674,6 @@ function test_1() {
         window_header.title.setText(`第${i}次领取`);
         findImage_until_click(img_next_orange, null, "橙色访问下位",
             config = {
-                click_bias: { x: 15, y: 15 },
                 delta_t: 3000,
                 end_delay: 2000
             });
