@@ -384,8 +384,11 @@ function back2main() {
 }
 
 //点击api
-function findImage_until_click(img1, img2, img1_name, bias, delta_t, verbose) {
-    if (verbose) { window_header.title.setText(`正在检测${img1_name}`); }
+function findImage_until_click(img1, img2, img1_name, bias, delta_t, end_delay, verbose) {
+    // console.show();
+    if (verbose) {
+        window_header.title.setText(`正在检测${img1_name}`);
+    }
     var p1, p2;
     while (true) {
         p1 = images.findImage(captureScreen(), img1); // 第一个图
@@ -418,8 +421,10 @@ function findImage_until_click(img1, img2, img1_name, bias, delta_t, verbose) {
                 window_header.title.setText(`未检测到${img1_name}按钮`);
                 break;
             }
+            sleep(delta_t);
         }
     }
+    if (typeof (end_delay) == 'number') { sleep(end_delay); }
 }
 
 // 检查关卡
@@ -470,7 +475,7 @@ function play(num) {
 
         findImage_until_click(img_start_red, null, "红色开始行动",
             bias = { "x": 30, "y": 0 }, delta_t = 1000, verbose = true);
-        
+
         if (err > 5) {
             break;
         } else {
@@ -529,30 +534,48 @@ function credit() {
     var img_visit_construction = images.read("res/img/访问基建.jpg");
     var img_next_orange = images.read("res/img/访问下位橙.jpg");
     var img_next_grey = images.read("res/img/访问下位灰.jpg");
-    var img_obtain_credit = images.read("res/img/获得信用.jpg");
+    // var img_obtain_credit = images.read("res/img/获得信用.jpg");
 
-    window_header.title.setText("正在测试找图");
+    window_header.title.setText("正在领取信用");
     ui.run(() => {
         set_window_status(0);
     })
     // console.show();
     back2main();
 
-    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友", { 'x': 15, 'y': 15 }, 400);
+    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友",
+        bias = { 'x': 15, 'y': 15 }, delta_t = 400);
+    if (err > 5) {
+        thread_stop;
+    } else {
+        err = 1;
+    }
 
-    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表", { 'x': 15, 'y': 15 }, 400)
+    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表",
+        bias = { 'x': 15, 'y': 15 }, delta_t = 400);
+    if (err > 5) {
+        thread_stop;
+    } else {
+        err = 1;
+    }
 
-    findImage_until_click(img_visit_construction, img_next_orange, "访问基建", { 'x': 15, 'y': 15 }, 1000);
+    findImage_until_click(img_visit_construction, null, "访问基建",
+        bias = { 'x': 15, 'y': 15 }, delta_t = 400, end_delay = 3000);
+    if (err > 5) {
+        thread_stop;
+    } else {
+        err = 1;
+    }
 
     for (var i = 1; i <= 10; i++) {
         window_header.title.setText(`第${i}次领取`);
-        findImage_until_click(img_next_orange, img_obtain_credit, "橙色访问下位", { 'x': 15, 'y': 15 }, 1200);
+        findImage_until_click(img_next_orange, null, "橙色访问下位",
+            bias = { 'x': 15, 'y': 15 }, delta_t = 3000, end_delay = 2000);
         if (err > 5) {
             break;
         } else {
             err = 1
         }
-        sleep(1000);
     }
 
 
