@@ -337,24 +337,6 @@ function thread_stop() {
     err = 1;
 }
 
-//检测模式
-function check_mode() {
-    var img_start_blue = images.read("res/img/开始行动蓝.jpg");
-    var p = images.findImage(captureScreen(), img_start_blue);
-    sleep(100);
-    if (p) {
-        window_header.title.setText("正常识别关卡");
-        sleep(200);
-        set_window_status(0); // 隐藏菜单
-    } else {
-        window_header.title.setText("无法识别关卡");
-        sleep(500);
-        thread_stop();
-    }
-    img_start_blue.recycle();
-    sleep(500);
-}
-
 //检测是否有返回键
 function check_back() {
     var p;
@@ -418,8 +400,8 @@ function back2main() {
 }
 
 //点击api
-function findImage_until_click(img1, img2, img1_name, bias, delta_t) {
-    // window_header.title.setText(`正在检测${img1_name}`);
+function findImage_until_click(img1, img2, img1_name, bias, delta_t, verbose) {
+    if (verbose) { window_header.title.setText(`正在检测${img1_name}`); }
     var p1, p2;
     while (true) {
         p1 = images.findImage(captureScreen(), img1); // 第一个图
@@ -427,7 +409,7 @@ function findImage_until_click(img1, img2, img1_name, bias, delta_t) {
         if (p1) {
             click(p1.x + bias.x, p1.y + bias.y);
             p1 = null;
-            sleep(500);
+            sleep(delta_t);
             p1 = images.findImage(captureScreen(), img1); // 第一个图
             sleep(100);
             if (p1) {
@@ -436,21 +418,40 @@ function findImage_until_click(img1, img2, img1_name, bias, delta_t) {
                     window_header.title.setText(`未点击${img1_name}按钮`);
                     break;
                 }
+            } else if (img2 == null) {
+                break;
             }
         } else {
-            p2 = images.findImage(captureScreen(), img2); // 第二个图
-            sleep(100);
-            if (p2) {
-                break;
-            } else {
-                err++;
-                if (err > 5) {
-                    window_header.title.setText(`未检测到${img1_name}按钮`);
+            if (img2 != null) {
+                p2 = images.findImage(captureScreen(), img2); // 第二个图
+                sleep(100);
+                if (p2) {
                     break;
                 }
             }
+            err++;
+            if (err > 5) {
+                window_header.title.setText(`未检测到${img1_name}按钮`);
+                break;
+            }
         }
-        sleep(delta_t);
+    }
+}
+
+// 检查关卡
+function check_start(img) {
+    var p = images.findImage(captureScreen(), img);
+    sleep(100);
+    if (p) {
+        window_header.title.setText("正常识别关卡");
+        sleep(500);
+        ui.run(() => {
+            set_window_status(0); // 隐藏菜单
+        })
+    } else {
+        window_header.title.setText("无法识别关卡");
+        sleep(200);
+        thread_stop();
     }
 }
 
@@ -471,84 +472,21 @@ function play(num) {
     var b = device.getBrightness();
     device.setBrightnessMode(0); // 亮度设为手动模式
 
-    p_blue = images.findImage(captureScreen(), img_start_blue);
-    sleep(100);
-    if (p_blue) {
-        window_header.title.setText("正常识别关卡");
-        sleep(500);
-        ui.run(() => {
-            set_window_status(0); // 隐藏菜单
-        })
-    } else {
-        window_header.title.setText("无法识别关卡");
-        sleep(200);
-        thread_stop();
-    }
+    check_start(img_start_blue);
 
     for (var i = 1; i <= num; i++) {
-        window_header.title.setText("检测蓝色开始行动按钮");
-        while (true) {
-            p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
-            sleep(100);
-            if (p_blue) {
-                click(p_blue.x, p_blue.y + 15);
-                p_blue = null;
-                sleep(500);
-                p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
-                sleep(100);
-                if (p_blue) {
-                    err++;
-                    if (err > 5) {
-                        window_header.title.setText("未点击蓝色开始行动");
-                        break;
-                    }
-                }
-            } else {
-                p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
-                sleep(100);
-                if (p_red) {
-                    break;
-                } else {
-                    err++;
-                    if (err > 5) {
-                        window_header.title.setText("未检测到蓝色开始行动");
-                        break;
-                    }
-                }
-            }
-        }
+        findImage_until_click(img_start_blue, img_start_red, "蓝色开始行动",
+            bias = { "x": 0, "y": 15 }, delta_t = 1000, verbose = true);
+
         if (err > 5) {
             break;
         } else {
             err = 1;
         }
 
-        window_header.title.setText("检测红色开始行动按钮");
-        while (true) {
-            p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
-            sleep(100);
-            if (p_red) {
-                click(p_red.x + 30, p_red.y);
-                p_red = null;
-                sleep(1000);
-                p_red = images.findImage(captureScreen(), img_start_red); // 红色开始行动
-                if (p_red) {
-                    err++
-                    if (err > 5) {
-                        window_header.title.setText("未正常进入关卡");
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            } else {
-                err++;
-                if (err > 5) {
-                    window_header.title.setText("未检测到红色开始行动");
-                    break;
-                }
-            }
-        }
+        findImage_until_click(img_start_red, null, "红色开始行动",
+            bias = { "x": 30, "y": 0 }, delta_t = 1000, verbose = true);
+        
         if (err > 5) {
             break;
         } else {
@@ -617,15 +555,15 @@ function credit() {
     // console.show();
     back2main();
 
-    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友", {'x':15, 'y':15}, 400);
+    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友", { 'x': 15, 'y': 15 }, 400);
 
-    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表", {'x':15, 'y':15}, 400)
-    
-    findImage_until_click(img_visit_construction, img_next_orange, "访问基建", {'x':15, 'y':15}, 1000);
+    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表", { 'x': 15, 'y': 15 }, 400)
 
-    for (var i=1; i<=10; i++){
+    findImage_until_click(img_visit_construction, img_next_orange, "访问基建", { 'x': 15, 'y': 15 }, 1000);
+
+    for (var i = 1; i <= 10; i++) {
         window_header.title.setText(`第${i}次领取`);
-        findImage_until_click(img_next_orange, img_obtain_credit, "橙色访问下位", {'x':15, 'y':15}, 1200);
+        findImage_until_click(img_next_orange, img_obtain_credit, "橙色访问下位", { 'x': 15, 'y': 15 }, 1200);
         if (err > 5) {
             break;
         } else {
@@ -652,7 +590,7 @@ function credit() {
 
 //测试
 function test_findimage() {
-    
+
 }
 
 function test_other() {
