@@ -284,8 +284,8 @@ function start_test() {
     num = window_main.num.getText();
     if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
-            // test_findimage();
-            test_other();
+            test_1();
+            // test_2();
         });
     }
     else {
@@ -384,9 +384,14 @@ function back2main() {
 }
 
 //点击api
-function findImage_until_click(img1, img2, img1_name, bias, delta_t, end_delay, verbose) {
-    // console.show();
+function findImage_until_click(img1, img2, img1_name, config) {
+    console.log(config);
+    var bias = config.click_bias;
+    var delta_t = config.delta_t; console.log(delta_t);
+    var end_delay = config.end_delay; console.log(end_delay);
+    var verbose = config.verbose; console.log(verbose);
     if (verbose) {
+        console.log(verbose);
         window_header.title.setText(`正在检测${img1_name}`);
     }
     var p1, p2;
@@ -433,13 +438,13 @@ function check_function(img, func_name) {
     sleep(100);
     if (p) {
         window_header.title.setText(`正常${func_name}`);
-        sleep(500);
+        sleep(1000);
         ui.run(() => {
             set_window_status(0); // 隐藏菜单
         })
     } else {
         window_header.title.setText(`无法${func_name}`);
-        sleep(200);
+        sleep(1000);
         thread_stop();
     }
 }
@@ -465,8 +470,11 @@ function play(num) {
 
     for (var i = 1; i <= num; i++) {
         findImage_until_click(img_start_blue, img_start_red, "蓝色开始行动",
-            bias = { "x": 0, "y": 15 }, delta_t = 1000, verbose = true);
-
+            config = {
+                click_bias: { "x": 0, "y": 15 },
+                delta_t: 800,
+                verbose: true
+            });
         if (err > 5) {
             break;
         } else {
@@ -474,8 +482,11 @@ function play(num) {
         }
 
         findImage_until_click(img_start_red, null, "红色开始行动",
-            bias = { "x": 30, "y": 0 }, delta_t = 1000, verbose = true);
-
+            config = {
+                click_bias: { "x": 30, "y": 0 },
+                delta_t: 800,
+                verbose: true
+            });
         if (err > 5) {
             break;
         } else {
@@ -595,11 +606,95 @@ function credit() {
 }
 
 //测试
-function test_findimage() {
+function test_1() {
+    err = 1;
+    thread_credit_isAlive = 1;
+    window_header.title.setText("检测是否首页");
+    back2main();
 
+    thread_test_isAlive = 1
+    var img_main_friend = images.read("res/img/首页好友.jpg");
+    var img_friend_list_grey = images.read("res/img/好友列表黑.jpg");
+    var img_friend_list_white = images.read("res/img/好友列表白.jpg");
+    var img_visit_construction = images.read("res/img/访问基建.jpg");
+    var img_enter_construction = images.read("res/img/进入基建.jpg");
+    var img_next_orange = images.read("res/img/访问下位橙.jpg");
+    var img_next_grey = images.read("res/img/访问下位灰.jpg");
+    // var img_obtain_credit = images.read("res/img/获得信用.jpg");
+
+    window_header.title.setText("正在领取信用");
+    ui.run(() => {
+        set_window_status(0);
+    })
+    // console.show();
+    back2main();
+
+    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友",
+        config = {
+            click_bias: { "x": 15, "y": 15 },
+            delta_t: 500
+        });
+    if (err > 5) {
+        thread_stop;
+    } else {
+        err = 1;
+    }
+
+    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表",
+        config = {
+            click_bias: { "x": 15, "y": 15 },
+            delta_t: 500
+        });
+    if (err > 5) {
+        thread_stop;
+    } else {
+        err = 1;
+    }
+
+    findImage_until_click(img_visit_construction, img_enter_construction, "访问基建",
+        config = {
+            click_bias: { "x": 15, "y": 15 },
+            delta_t: 500,
+            end_delay: 4000
+        });
+    if (err > 5) {
+        thread_stop;
+    } else {
+        err = 1;
+    }
+
+    for (var i = 1; i <= 10; i++) {
+        window_header.title.setText(`第${i}次领取`);
+        findImage_until_click(img_next_orange, null, "橙色访问下位",
+            config = {
+                click_bias: { "x": 15, "y": 15 },
+                delta_t: 3000,
+                end_delay: 2000
+            });
+        if (err > 5) {
+            break;
+        } else {
+            err = 1
+        }
+    }
+
+    img_main_friend.recycle();
+    img_friend_list_grey.recycle();
+    img_friend_list_white.recycle();
+    img_visit_construction.recycle();
+    img_enter_construction.recycle();
+    img_next_orange.recycle();
+    img_next_grey.recycle();
+
+    window_header.title.setText("信用领取完成");
+    ui.run(() => {
+        set_window_status(1);
+    })
+
+    thread_stop();
 }
 
-function test_other() {
+function test_2() {
     thread_test_isAlive = 1
     window_header.title.setText("正在测试");
     console.show();
