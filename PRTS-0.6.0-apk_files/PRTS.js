@@ -423,17 +423,17 @@ function findImage_until_click(img1, img2, img1_name, bias, delta_t, verbose) {
 }
 
 // 检查关卡
-function check_start(img) {
+function check_function(img, func_name) {
     var p = images.findImage(captureScreen(), img);
     sleep(100);
     if (p) {
-        window_header.title.setText("正常识别关卡");
+        window_header.title.setText(`正常${func_name}`);
         sleep(500);
         ui.run(() => {
             set_window_status(0); // 隐藏菜单
         })
     } else {
-        window_header.title.setText("无法识别关卡");
+        window_header.title.setText(`无法${func_name}`);
         sleep(200);
         thread_stop();
     }
@@ -456,7 +456,7 @@ function play(num) {
     var b = device.getBrightness();
     device.setBrightnessMode(0); // 亮度设为手动模式
 
-    check_start(img_start_blue);
+    check_function(img_start_blue, "识别关卡");
 
     for (var i = 1; i <= num; i++) {
         findImage_until_click(img_start_blue, img_start_red, "蓝色开始行动",
