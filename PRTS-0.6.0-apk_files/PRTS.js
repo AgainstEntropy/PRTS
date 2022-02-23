@@ -384,14 +384,28 @@ function back2main() {
 }
 
 //点击api
+/**
+ * @function findImage_until_click
+ * @description 点击img1，直到检测到img2
+ * @param {image} img1 需要点击的图片
+ * @param {image} img2 用于判断是否已经点击img1，跳转到img2
+ * @param {string} img1_name img1的名称
+ * @param {object} [config={ }] 一些可选参数
+ * @param {object} [config.click_bias={ x: 15, y: 15 }]  点击时相对于检测图片左上角的偏移量（像素）
+ * @param {number} [config.delta_t=500]  一次点击之后，正常情况下跳转到下一个界面的等待时间
+ * @param {number} [config.end_delay=0]  本次点击完全结束后，直到开始下一个点击事件的延迟时间
+ * @param {boolean} [config.verbose=false] 是否将点击时间显示在悬浮窗的深灰色横条上
+ * @return void
+ */
 function findImage_until_click(img1, img2, img1_name, config) {
-    console.log(config);
-    var bias = config.click_bias;
-    var delta_t = config.delta_t; console.log(delta_t);
-    var end_delay = config.end_delay; console.log(end_delay);
-    var verbose = config.verbose; console.log(verbose);
+    // initialize configuration parameters.
+    var config = (config === undefined) ? {} : config;
+    var bias = (config.click_bias === undefined) ? { x: 15, y: 15 } : config.click_bias;
+    var delta_t = (config.delta_t === undefined) ? 500 : config.delta_t;
+    var end_delay = (config.end_delay === undefined) ? 0 : config.end_delay;
+    var verbose = (config.verbose === undefined) ? false : config.verbose;
+
     if (verbose) {
-        console.log(verbose);
         window_header.title.setText(`正在检测${img1_name}`);
     }
     var p1, p2;
@@ -429,7 +443,7 @@ function findImage_until_click(img1, img2, img1_name, config) {
             sleep(delta_t);
         }
     }
-    if (typeof (end_delay) == 'number') { sleep(end_delay); }
+    if (end_delay) { sleep(end_delay); }
 }
 
 // 检查关卡
@@ -471,7 +485,7 @@ function play(num) {
     for (var i = 1; i <= num; i++) {
         findImage_until_click(img_start_blue, img_start_red, "蓝色开始行动",
             config = {
-                click_bias: { "x": 0, "y": 15 },
+                click_bias: { x: 0, y: 15 },
                 delta_t: 800,
                 verbose: true
             });
@@ -483,7 +497,7 @@ function play(num) {
 
         findImage_until_click(img_start_red, null, "红色开始行动",
             config = {
-                click_bias: { "x": 30, "y": 0 },
+                click_bias: { x: 30, y: 0 },
                 delta_t: 800,
                 verbose: true
             });
@@ -629,22 +643,14 @@ function test_1() {
     // console.show();
     back2main();
 
-    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友",
-        config = {
-            click_bias: { "x": 15, "y": 15 },
-            delta_t: 500
-        });
+    findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友");
     if (err > 5) {
         thread_stop;
     } else {
         err = 1;
     }
 
-    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表",
-        config = {
-            click_bias: { "x": 15, "y": 15 },
-            delta_t: 500
-        });
+    findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表");
     if (err > 5) {
         thread_stop;
     } else {
@@ -653,8 +659,6 @@ function test_1() {
 
     findImage_until_click(img_visit_construction, img_enter_construction, "访问基建",
         config = {
-            click_bias: { "x": 15, "y": 15 },
-            delta_t: 500,
             end_delay: 4000
         });
     if (err > 5) {
@@ -667,7 +671,7 @@ function test_1() {
         window_header.title.setText(`第${i}次领取`);
         findImage_until_click(img_next_orange, null, "橙色访问下位",
             config = {
-                click_bias: { "x": 15, "y": 15 },
+                click_bias: { x: 15, y: 15 },
                 delta_t: 3000,
                 end_delay: 2000
             });
