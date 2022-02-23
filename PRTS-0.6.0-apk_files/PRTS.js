@@ -6,9 +6,8 @@ var ver = "0.6.0";
 var num;
 var err = 1;
 var thread_play_isAlive = 0;
-var thread_test_isAlive = 0;
 var thread_credit_isAlive = 0;
-var thread_construction_isAlive = 0;
+var thread_test_isAlive = 0;
 var window = 1;
 var ready = 1;
 var window_main;
@@ -170,15 +169,14 @@ function main() {
             <horizontal gravity="center_horizontal|center_vertical">
                 <vertical gravity="center_horizontal|center_vertical" w="78">
                     <button id="b_start" h="35" text="开始" textSize="13sp" gravity="center_horizontal|center_vertical" />
-                    <button id="b_test" h="35" text="测试" textSize="13sp" gravity="center_horizontal|center_vertical" />
+                    <button id="b_credit" h="35" text="信用" textSize="13sp" gravity="center_horizontal|center_vertical" />
                 </vertical>
                 <vertical gravity="center_horizontal|center_vertical" w="78">
                     <button id="b_stop" h="70" text="停止" textSize="20sp" gravity="center_horizontal|center_vertical" />
                 </vertical>
             </horizontal>
-            <horizontal gravity="center_horizontal|center_vertical">
-                <button id="b_construction" w="78" h="35" text="基建" textSize="13sp" gravity="center_horizontal|center_vertical" />
-                <button id="b_credit" w="78" h="35" text="信用" textSize="13sp" gravity="center_horizontal|center_vertical" />
+            <horizontal gravity="center_horizontal|center_vertical" w="150">
+                <button id="b_test" h="35" text="测试" textSize="13sp" gravity="center_horizontal|center_vertical" />
             </horizontal>
         </vertical>
     );
@@ -191,9 +189,8 @@ function main() {
     //按钮事件
     window_main.b_start.click(() => { start_play() });
     window_main.b_stop.click(() => { thread_stop() });
-    window_main.b_test.click(() => { start_test() });
-    window_main.b_construction.click(() => { start_construction() });
     window_main.b_credit.click(() => { start_credit() });
+    window_main.b_test.click(() => { start_test() });
     window_main.add.on("touch_down", () => {
         var i = 0; //变量i
         mouseTime = setInterval(function () {  //setInterval可一直执行内部函数
@@ -272,7 +269,7 @@ function num_subtract() {
 //开始代理线程
 function start_play() {
     num = window_main.num.getText();
-    if (thread_play_isAlive + thread_test_isAlive + thread_construction_isAlive + thread_credit_isAlive == 0) {
+    if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
             play(num);
         });
@@ -285,7 +282,7 @@ function start_play() {
 //开始测试线程
 function start_test() {
     num = window_main.num.getText();
-    if (thread_play_isAlive + thread_test_isAlive + thread_construction_isAlive + thread_credit_isAlive == 0) {
+    if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
             // test_findimage();
             test_other();
@@ -298,21 +295,9 @@ function start_test() {
 
 //开始领取信用线程
 function start_credit() {
-    if (thread_play_isAlive + thread_test_isAlive + thread_construction_isAlive + thread_credit_isAlive == 0) {
+    if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
             credit();
-        });
-    }
-    else {
-        threads.start(function () { toast("正在进行其他操作"); });
-    }
-}
-
-//开始收取基建线程
-function start_construction() {
-    if (thread_play_isAlive + thread_test_isAlive + thread_construction_isAlive + thread_credit_isAlive == 0) {
-        threads.start(function () {
-            construction();
         });
     }
     else {
@@ -325,7 +310,6 @@ function thread_stop() {
     threads.shutDownAll();
     thread_play_isAlive = 0;
     thread_test_isAlive = 0;
-    thread_construction_isAlive = 0;
     thread_credit_isAlive = 0;
     window_main.num.setText("0");
 
@@ -466,7 +450,7 @@ function play(num) {
     var img_takeover = images.read("res/img/接管作战.jpg");
     var img_over = images.read("res/img/行动结束.jpg");
 
-    var p_blue, p_red, p_over;
+    var p_blue, p_over;
 
     var b_mode = device.getBrightnessMode();
     var b = device.getBrightness();
@@ -534,7 +518,6 @@ function play(num) {
 //领取信用
 function credit() {
     err = 1;
-    var time_success = 0; // 成功领取次数
     thread_credit_isAlive = 1;
     window_header.title.setText("检测是否首页");
     back2main();
