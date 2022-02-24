@@ -9,6 +9,7 @@
   "encryptLevel": 0,
   "useFeatures": [],
   "icon": "res/icon.jpeg",
+  "ignore": ["build"],
   "launchConfig": {
     "displaySplash": true,
     "hideLogs": false,
@@ -26,7 +27,8 @@
   "packageName": "com.prts.arknights.debug",
   "permissionConfig": {
     "requestListOnStartup": [
-      "android.permission.WRITE_EXTERNAL_STORAGE"
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.WRITE_SETTINGS"
     ]
   },
   "scripts": {},

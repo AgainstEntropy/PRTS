@@ -3,9 +3,11 @@
 //变量初始化
 var debug = true;
 var ver = "0.6.0";
+var num;
 var err = 1;
 var thread_play_isAlive = 0;
 var thread_credit_isAlive = 0;
+var thread_test_isAlive = 0;
 var window = 1;
 var ready = 1;
 var window_main;
@@ -51,11 +53,10 @@ ui.layout(
         <horizontal gravity="left_horizontal|center_vertical">
             <text id="info" w="400" h="200" textSize="60sp" line="2" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="left_horizontal|center_vertical" />
         </horizontal>
-        <text id="ver" w="*" h="100" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
+        <text id="ver" w="*" h="100" text="当前版本： 0.6.0" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
         <text id="blog" w="*" h="100" text="Modified by 逆熵之光" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|top" />
     </vertical>
 );
-ui.ver.setText(`当前版本： ${ver}`);
 ui.start.setText(" 开\n 始");
 ui.use.setText(" 说\n 明");
 ui.info.setText(" 关\n 于");
@@ -116,6 +117,12 @@ ui.blog.click(() => {
     app.openUrl("https://space.bilibili.com/12294062");
 });
 
+// 加载用于识别的图片
+
+// var img_start_red = images.read("res/img/开始行动红.jpg");
+// var img_takeover = images.read("res/img/接管作战.jpg");
+
+
 //主程序
 function main() {
     //请求截图权限
@@ -148,6 +155,7 @@ function main() {
     window_header.setTouchable(true);
     window_header.setPosition(0, 150);
     window_header.setSize(w_width, 60);
+    //window_header.exitOnClose();
     setInterval(() => { }, 2000);
 
     //悬浮窗界面
@@ -166,6 +174,9 @@ function main() {
                 <vertical gravity="center_horizontal|center_vertical" w="78">
                     <button id="b_stop" h="70" text="停止" textSize="20sp" gravity="center_horizontal|center_vertical" />
                 </vertical>
+            </horizontal>
+            <horizontal gravity="center_horizontal|center_vertical" w="150">
+                <button id="b_test" h="35" text="测试" textSize="13sp" gravity="center_horizontal|center_vertical" />
             </horizontal>
         </vertical>
     );
@@ -257,8 +268,8 @@ function num_subtract() {
 
 //开始代理线程
 function start_play() {
-    var num = window_main.num.getText();
-    if (thread_play_isAlive + thread_credit_isAlive == 0) {
+    num = window_main.num.getText();
+    if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
             play(num);
         });
@@ -268,9 +279,23 @@ function start_play() {
     }
 }
 
+//开始测试线程
+function start_test() {
+    num = window_main.num.getText();
+    if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
+        threads.start(function () {
+            // test_1();
+            test_2();
+        });
+    }
+    else {
+        threads.start(function () { toast("正在进行其他操作"); });
+    }
+}
+
 //开始领取信用线程
 function start_credit() {
-    if (thread_play_isAlive + thread_credit_isAlive == 0) {
+    if (thread_play_isAlive + thread_test_isAlive + thread_credit_isAlive == 0) {
         threads.start(function () {
             credit();
         });
@@ -285,14 +310,52 @@ function thread_stop() {
     threads.shutDownAll();
     thread_play_isAlive = 0;
     thread_credit_isAlive = 0;
+    thread_test_isAlive = 0;
     window_main.num.setText("0");
 
     if (err == 1) {
         window_header.title.setText("当前没有操作");
     } else if (err > 5) {
         window_header.title.setText("自动代理出现失误");
-        err = 1;
     }
+    err = 1;
+}
+
+//检测是否有返回键
+function check_back() {
+    var p;
+
+    while (true) {
+        p = images.findMultiColors(captureScreen(), "#313131", [[20, 0, "#313131"], [0, 20, "#313131"]], {
+            region: [0, 0, 150, 150],
+            threshold: 1
+        });
+        sleep(200);
+        if (p) { break; }
+    }
+}
+
+//返回
+function click_back(sure) { // sure=1为有返回确认，=0为无返回确认
+    click(device.height / 20 + random(-10, 10), device.width / 20 + random(-10, 10));
+    if (sure) {
+        sleep(1000 + random(-20, 20));
+        click(device.height / 5 * 3 + random(-10, 10), device.width / 10 * 7 + random(-10, 10));
+    }
+}
+
+//返回首页
+function home(sure) {
+    set_window_status(0);
+    click(400 + random(-10, 10), 50 + random(-10, 10));
+    sleep(1000 + random(-20, 20));
+    click(270 + random(-10, 10), 410 + random(-10, 10));
+    if (sure) {
+        sleep(700 + random(-20, 20));
+        click(device.height / 5 * 3 + random(-10, 10), device.width / 10 * 7 + random(-10, 10));
+    }
+
+    set_window_status(1);
 }
 
 //隐藏、显示菜单
@@ -395,8 +458,8 @@ function check_function(img, func_name) {
         })
     } else {
         window_header.title.setText(`无法${func_name}`);
-        thread_stop();
         sleep(1000);
+        thread_stop();
     }
 }
 
@@ -420,7 +483,7 @@ function play(num) {
     check_function(img_start_blue, "识别关卡");
 
     for (var i = 1; i <= num; i++) {
-        findImage_until_click(img_start_blue, img_start_red, "蓝色开始",
+        findImage_until_click(img_start_blue, img_start_red, "蓝色开始行动",
             config = {
                 click_bias: { x: 0, y: 15 },
                 delta_t: 800,
@@ -432,7 +495,7 @@ function play(num) {
             err = 1;
         }
 
-        findImage_until_click(img_start_red, null, "红色开始",
+        findImage_until_click(img_start_red, null, "红色开始行动",
             config = {
                 click_bias: { x: 30, y: 0 },
                 delta_t: 800,
@@ -489,6 +552,7 @@ function credit() {
     window_header.title.setText("检测是否首页");
     back2main();
 
+    thread_test_isAlive = 1
     var img_main_friend = images.read("res/img/首页好友.jpg");
     var img_friend_list_grey = images.read("res/img/好友列表黑.jpg");
     var img_friend_list_white = images.read("res/img/好友列表白.jpg");
@@ -554,6 +618,27 @@ function credit() {
     ui.run(() => {
         set_window_status(1);
     })
+
+    thread_stop();
+}
+
+//测试
+function test_1() {
+
+}
+
+function test_2() {
+    thread_test_isAlive = 1
+    window_header.title.setText("正在测试");
+    console.show();
+    var b = device.getBrightness();
+    log(`当前亮度为${b}`)
+    sleep(3000);
+    device.setBrightness(50);
+    log(`当前亮度为50`)
+    sleep(3000);
+    device.setBrightness(b);
+    log(`当前亮度为${b}`)
 
     thread_stop();
 }
