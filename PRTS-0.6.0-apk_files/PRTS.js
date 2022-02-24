@@ -18,7 +18,7 @@ var bg;
 var background = [];
 
 // 打乱背景图片顺序
-for (var i = 1; i <= 25; i++) {
+for (var i = 1; i <= 21; i++) {
     sort.push(i);
 }
 // sort = sort.sort(function() { return .5 - Math.random(); }); //非完全打乱

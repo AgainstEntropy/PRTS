@@ -9,7 +9,7 @@
   "encryptLevel": 0,
   "useFeatures": [],
   "icon": "res/icon.jpeg",
-  "ignore": ["build"],
+  "ignore": ["build", "PRTS debug.js"],
   "launchConfig": {
     "displaySplash": true,
     "hideLogs": false,
