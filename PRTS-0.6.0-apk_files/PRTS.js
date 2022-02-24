@@ -12,7 +12,7 @@ var window_main;
 var window_header;
 var mouseTime;
 var w_width = 430;
-var w_height = 380;
+var w_height = 300;
 var sort = [];
 var bg;
 var background = [];
@@ -179,7 +179,6 @@ function main() {
     window_main.b_start.click(() => { start_play() });
     window_main.b_stop.click(() => { thread_stop() });
     window_main.b_credit.click(() => { start_credit() });
-    window_main.b_test.click(() => { start_test() });
     window_main.add.on("touch_down", () => {
         var i = 0; //变量i
         mouseTime = setInterval(function () {  //setInterval可一直执行内部函数
@@ -210,12 +209,7 @@ function main() {
     // 悬浮窗拖动
     var position;
     window_header.title.on('touch', (e) => {
-        if (!position) {
-            position = [window_header.x - e.getRawX(), window_header.y - e.getRawY()];
-        }
-    });
-    window_header.title.on('touch_up', () => {
-        position = null;
+        position = [window_header.x - e.getRawX(), window_header.y - e.getRawY()];
     });
     window_header.title.on('touch_move', (e) => {
         let [x, y] = position;
@@ -359,6 +353,7 @@ function findImage_until_click(img1, img2, img1_name, config) {
                 err++;
                 if (err > 5) {
                     window_header.title.setText(`未点击${img1_name}按钮`);
+                    sleep(1000);
                     break;
                 }
             } else if (img2 == null) {
@@ -375,6 +370,7 @@ function findImage_until_click(img1, img2, img1_name, config) {
             err++;
             if (err > 5) {
                 window_header.title.setText(`未检测到${img1_name}按钮`);
+                sleep(1000);
                 break;
             }
             sleep(delta_t);
@@ -395,8 +391,9 @@ function check_function(img, func_name) {
         })
     } else {
         window_header.title.setText(`无法${func_name}`);
-        thread_stop();
         sleep(1000);
+        thread_stop();
+        sleep(200);
     }
 }
 
@@ -506,14 +503,16 @@ function credit() {
 
     findImage_until_click(img_main_friend, img_friend_list_grey, "首页好友");
     if (err > 5) {
-        thread_stop;
+        thread_stop();
+        sleep(200);
     } else {
         err = 1;
     }
 
     findImage_until_click(img_friend_list_grey, img_friend_list_white, "灰色好友列表");
     if (err > 5) {
-        thread_stop;
+        thread_stop();
+        sleep(200);
     } else {
         err = 1;
     }
@@ -523,7 +522,8 @@ function credit() {
             end_delay: 4000
         });
     if (err > 5) {
-        thread_stop;
+        thread_stop();
+        sleep(200);
     } else {
         err = 1;
     }
