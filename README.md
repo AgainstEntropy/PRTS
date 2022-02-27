@@ -1,5 +1,8 @@
 # PRTS v0.6.0
 
+![GitHub-license](https://img.shields.io/github/license/AgainstEntropy/PRTS)
+![Github-debugging](https://img.shields.io/badge/debugging-v0.6.0-blue)
+
 ## v0.6.0更新内容
 
 ✅ ⚡ 自动代理流程全面由找色升级为找图！**稳定性&泛用性up**！
