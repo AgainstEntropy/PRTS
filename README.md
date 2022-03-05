@@ -1,7 +1,7 @@
 # PRTS v0.6.0
 
 ![GitHub-license](https://img.shields.io/github/license/AgainstEntropy/PRTS)
-![Github-debugging](https://img.shields.io/badge/debugging-v0.6.0-blue)
+![Github-release](https://img.shields.io/badge/release-v0.6.0-blue)
 
 ## v0.6.0更新内容
 
@@ -39,7 +39,7 @@
 
 2. 「+」号和「-」用于设置关卡代理作战次数，在关卡界面点击「开始」，理智不足时不会自动吃药；
 
-3. 「信用」分别用于自动收取（建议从首页开始自动收取）
+3. 「信用」用于自动收取
 
 ☆【**注意：按音量上键会退出软件**】☆
 
