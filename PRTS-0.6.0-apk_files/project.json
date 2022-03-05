@@ -1,0 +1,37 @@
+{
+  "assets": [],
+  "build": {
+    "build_id": "045101E5-19",
+    "build_number": 19,
+    "build_time": 1624630634543,
+    "release": true
+  },
+  "encryptLevel": 0,
+  "useFeatures": [],
+  "icon": "res/icon.jpeg",
+  "ignore": ["build", "PRTS debug.js"],
+  "launchConfig": {
+    "displaySplash": true,
+    "hideLogs": false,
+    "splashIcon": "res/splashIcon.jpeg",
+    "splashText": "Powered by 蹦蹦炸弹Pro, Modified by 逆熵之光",
+    "stableMode": false
+  },
+  "main": "PRTS.js",
+  "name": "PRTS 0.6.0",
+  "optimization": {
+    "removeAccessibilityService": false,
+    "removeOpenCv": false,
+    "unusedResources": false
+  },
+  "packageName": "com.prts.arknights",
+  "permissionConfig": {
+    "requestListOnStartup": [
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.WRITE_SETTINGS"
+    ]
+  },
+  "scripts": {},
+  "versionCode": 1,
+  "versionName": "0.6.0"
+}
