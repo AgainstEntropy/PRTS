@@ -372,6 +372,41 @@ function findImage_until_click(img1, img2, img1_name, config) {
     if (end_delay) { sleep(end_delay); }
 }
 
+function findImage_until_click_new(img, text, config) {
+    // initialize configuration parameters.
+    var config = (config === undefined) ? {} : config;
+    var click = (config.click === undefined) ? true : config.click;
+    var bias = (config.click_bias === undefined) ? { x: 15, y: 15 } : config.click_bias;
+    var delta_t = (config.delta_t === undefined) ? 500 : config.delta_t;
+    var max = (config.max_err === undefined) ? 5 : config.max_err;
+    var click_delay = (config.click_delay === undefined) ? 200 : config.click_delay;
+    var end_delay = (config.end_delay === undefined) ? 0 : config.end_delay;
+    var verbose = (config.verbose === undefined) ? false : config.verbose;
+
+    if (verbose) {
+        window_header.title.setText(`${text}`);
+    }
+    var p;
+    while (true) {
+        p = images.findImage(captureScreen(), img); // 第一个图
+        sleep(100);
+        if (p) {
+            break;
+        } else {
+            err++;
+            if (err > max) {
+                window_header.title.setText(`未成功${text}`);
+                sleep(1000);
+                break;
+            }
+            sleep(delta_t);
+        }
+    }
+    sleep(click_delay);
+    click(p.x + bias.x, p.y + bias.y);
+    if (end_delay) { sleep(end_delay); }
+}
+
 // 检查关卡
 function check_function(img, func_name) {
     var p = images.findImage(captureScreen(), img);
@@ -401,8 +436,6 @@ function play(num) {
     var img_takeover = images.read("res/img/接管作战.jpg");
     var img_over = images.read("res/img/行动结束.jpg");
 
-    var p_blue, p_over;
-
     var b_mode = device.getBrightnessMode();
     var b = device.getBrightness();
     device.setBrightnessMode(0); // 亮度设为手动模式
@@ -410,10 +443,9 @@ function play(num) {
     check_function(img_start_blue, "识别关卡");
 
     for (var i = 1; i <= num; i++) {
-        findImage_until_click(img_start_blue, img_start_red, "蓝色开始",
+        findImage_until_click_new(img_start_blue, "检测蓝色开始行动",
             config = {
                 click_bias: { x: 0, y: 15 },
-                delta_t: 800,
                 verbose: true
             });
         if (err > 5) {
@@ -422,10 +454,9 @@ function play(num) {
             err = 1;
         }
 
-        findImage_until_click(img_start_red, null, "红色开始",
+        findImage_until_click_new(img_start_red, "检测红色开始行动",
             config = {
                 click_bias: { x: 30, y: 0 },
-                delta_t: 800,
                 verbose: true
             });
         if (err > 5) {
@@ -435,27 +466,19 @@ function play(num) {
         }
 
         window_header.title.setText(`当前第${i}次代理`);
-        sleep(10 * 1000);  //延迟5s调整屏幕亮度
+        sleep(10 * 1000);  //延迟10s调整屏幕亮度
         if (i == 1) {
             device.setBrightness(Math.min(50, b / 2));
         }
-        sleep(30 * 1000);  // 延迟35s检测是否战斗结算
+        sleep(30 * 1000);  // 延迟40s开始检测是否战斗结算
 
-        while (true) {
-            p_over = images.findImage(captureScreen(), img_over); // 检测是否结算页面
-            sleep(100);
-            if (p_over) {
-                window_header.title.setText("正在进行结算");
-                sleep(1000);
-                click(p_over.x + 80, p_over.y);
-            } else {
-                sleep(3000);
-                p_blue = images.findImage(captureScreen(), img_start_blue); // 蓝色开始行动
-                if (p_blue) {
-                    break;
-                }
+        findImage_until_click_new(img_over, "正在进行结算",
+            config = {
+                verbose : true,
+                click_delay : 1000,
+                end_delay : 3000
             }
-        }
+        )
     }
     // 回收所有图片
     img_start_blue.recycle();
