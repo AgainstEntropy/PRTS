@@ -38,21 +38,23 @@ setScreenMetrics(1080, 2340);
 //界面
 ui.statusBarColor("#FFC0CB");
 ui.layout(
-    <vertical bg="#ffffff">
+    <vertical bg="#ffffff" gravity="center_horizontal">
         <horizontal gravity="center_horizontal" bg="#FFC0CB">
             <text text="PRTS作战代理" h="100" textColor="#ffffff" textSize="40sp" gravity="center_horizontal|center_vertical" margin="1" />
         </horizontal>
-        <horizontal gravity="left_horizontal|center_vertical">
+        <horizontal gravity="center_vertical">
             <text id="start" w="400" h="200" textSize="60sp" line="2" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="left_horizontal|center_vertical" />
         </horizontal>
-        <horizontal gravity="left_horizontal|center_vertical">
+        <horizontal gravity="center_vertical">
             <text id="use" w="400" h="200" textSize="60sp" line="2" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="left_horizontal|center_vertical" />
         </horizontal>
-        <horizontal gravity="left_horizontal|center_vertical">
+        <horizontal gravity="center_vertical">
             <text id="info" w="400" h="200" textSize="60sp" line="2" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="left_horizontal|center_vertical" />
         </horizontal>
-        <text id="ver" w="*" h="100" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
-        <text id="blog" w="*" h="100" text="Modified by 逆熵之光" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|top" />
+        <vertical gravity="center_horizontal">
+            <text id="ver" w="*" h="50" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
+            <text id="blog" w="*" h="auto" text="Modified by 逆熵之光" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|top" />
+        </vertical>    
     </vertical>
 );
 ui.ver.setText(`当前版本： ${ver}`);
@@ -88,14 +90,13 @@ ui.use.click(() => {
     threads.start(function () {
         alert("使用说明", "【权限说明】\n\
 （点击开始会自动弹出需要的权限窗口）\n\
-1.打开悬浮窗权限\n\
-2.打开无障碍服务\n\
-3.同意截取屏幕\n\n\
+1. 打开悬浮窗权限\n\
+2. 打开无障碍服务\n\
+3. 同意截取屏幕\n\n\
 【功能说明】\n\
-1.点悬浮窗上侧的深灰色横条可以显示或隐藏悬浮窗；\n\
-2.领取任务奖励：不适用于有见习任务的玩家；\n\
-3.「+」号和「-」用于设置关卡代理作战次数，在关卡界面点击「开始」，理智不足时不会自动吃药；\n\
-4.「任务」、「基建」和「信用」分别用于自动收取（建议从首页开始自动收取）\n\n\
+1. 点悬浮窗上侧的深灰色横条可以显示或隐藏悬浮窗；\n\
+2.「+」号和「-」用于设置关卡代理作战次数，在关卡界面点击「开始」，理智不足时不会自动吃药；\n\
+4.「信用」用于自动收取；\n\n\
 ☆【注意：按音量上键会退出软件】☆");
     });
 });
