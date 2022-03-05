@@ -51,8 +51,10 @@ ui.layout(
         <horizontal gravity="left_horizontal|center_vertical">
             <text id="info" w="400" h="200" textSize="60sp" line="2" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="left_horizontal|center_vertical" />
         </horizontal>
-        <text id="ver" w="*" h="100" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
-        <text id="blog" w="*" h="100" text="Modified by 逆熵之光" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|top" />
+        <vertical gravity="center_horizontal|bottom">
+            <text id="ver" w="*" h="auto" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
+            <text id="blog" w="*" h="auto" text="Modified by 逆熵之光" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|top" />
+        </vertical>
     </vertical>
 );
 ui.ver.setText(`当前版本： ${ver}`);
