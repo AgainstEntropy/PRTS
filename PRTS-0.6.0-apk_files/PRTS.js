@@ -203,7 +203,7 @@ function main() {
     window_main.subtract.on("touch_up", () => { clearInterval(mouseTime); });
 
     window_header.title.on('click', () => {
-        ui.run(()=>{
+        ui.run(() => {
             set_window_status((window + 1) % 2);
         });
     });
@@ -375,11 +375,11 @@ function findImage_until_click(img1, img2, img1_name, config) {
 function findImage_until_click_new(img, text, config) {
     // initialize configuration parameters.
     var config = (config === undefined) ? {} : config;
-    var click = (config.click === undefined) ? true : config.click;
+    var if_click = (config.click === undefined) ? true : config.click;
     var bias = (config.click_bias === undefined) ? { x: 15, y: 15 } : config.click_bias;
     var delta_t = (config.delta_t === undefined) ? 500 : config.delta_t;
     var max = (config.max_err === undefined) ? 5 : config.max_err;
-    var click_delay = (config.click_delay === undefined) ? 200 : config.click_delay;
+    var click_delay = (config.click_delay === undefined) ? 300 : config.click_delay;
     var end_delay = (config.end_delay === undefined) ? 0 : config.end_delay;
     var verbose = (config.verbose === undefined) ? false : config.verbose;
 
@@ -388,11 +388,12 @@ function findImage_until_click_new(img, text, config) {
     }
     var p;
     while (true) {
-        p = images.findImage(captureScreen(), img); // 第一个图
+        p = images.findImage(captureScreen(), img);
         sleep(100);
         if (p) {
             break;
         } else {
+            console.log(err);
             err++;
             if (err > max) {
                 window_header.title.setText(`未成功${text}`);
@@ -403,7 +404,7 @@ function findImage_until_click_new(img, text, config) {
         }
     }
     sleep(click_delay);
-    click(p.x + bias.x, p.y + bias.y);
+    if (if_click) { click(p.x + bias.x, p.y + bias.y); }
     if (end_delay) { sleep(end_delay); }
 }
 
@@ -474,9 +475,9 @@ function play(num) {
 
         findImage_until_click_new(img_over, "正在进行结算",
             config = {
-                verbose : true,
-                click_delay : 1000,
-                end_delay : 3000
+                verbose: true,
+                click_delay: 1000,
+                end_delay: 3000
             }
         )
     }
@@ -489,10 +490,10 @@ function play(num) {
     ui.run(() => {
         set_window_status(1); // 结束作战时打开菜单
     })
-    thread_stop();
-
     device.setBrightness(b);  //恢复原始亮度
     device.setBrightnessMode(b_mode);  //恢复原始亮度模式
+    
+    thread_stop();
 }
 
 //领取信用
