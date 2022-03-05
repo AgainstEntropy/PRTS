@@ -108,8 +108,8 @@ ui.info.click(() => {
 4.修改者：逆熵之光\n\
 主页：https://space.bilibili.com/12294062 \n\n\
 修改内容为：\n\
-1.增加了自动收取基建和信用的功能；\n\
-2.优化了自动收取任务奖励的流程。\n");
+1.优化自动代理作战的流程。\n\
+2.将自动收取任务奖励改为自动收取信用。\n");
     });
 });
 ui.blog.click(() => {
@@ -203,7 +203,9 @@ function main() {
     window_main.subtract.on("touch_up", () => { clearInterval(mouseTime); });
 
     window_header.title.on('click', () => {
-        set_window_status((window + 1) % 2);
+        ui.run(()=>{
+            set_window_status((window + 1) % 2);
+        });
     });
 
     // 悬浮窗拖动
@@ -216,15 +218,6 @@ function main() {
         window_header.setPosition(x + e.getRawX(), y + e.getRawY());
         window_main.setPosition(x + e.getRawX(), y + e.getRawY() + 60);
     });
-}
-
-function put_block(x, y, size) {
-    var block = floaty.rawWindow(
-        <horizontal bg="#A73B02" alpha="0.7" gravity="center_horizontal|center_vertical">
-        </horizontal>
-    );
-    block.setSize(size, size);
-    block.setPosition(x - size / 2, y - size / 2);
 }
 
 //加号
@@ -292,7 +285,7 @@ function thread_stop() {
 //隐藏、显示菜单
 function set_window_status(status) { // 0为隐藏，1为显示
     window = status;
-    window_main.setSize(status * w_width, w_height);
+    window_main.setSize(w_width, status * w_height + 1);
 }
 
 //返回首页
