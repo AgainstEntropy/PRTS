@@ -18,13 +18,13 @@
     "stableMode": false
   },
   "main": "PRTS.js",
-  "name": "PRTS debug",
+  "name": "PRTS 0.6.0",
   "optimization": {
     "removeAccessibilityService": false,
     "removeOpenCv": false,
     "unusedResources": false
   },
-  "packageName": "com.prts.arknights.debug",
+  "packageName": "com.prts.arknights",
   "permissionConfig": {
     "requestListOnStartup": [
       "android.permission.WRITE_EXTERNAL_STORAGE",
