@@ -1,7 +1,7 @@
 # PRTS v0.6.1
 
 ![GitHub-license](https://img.shields.io/github/license/AgainstEntropy/PRTS)
-![Github-status](https://img.shields.io/badge/developping-v0.6.0-blue)
+![Github-status](https://img.shields.io/badge/developing-v0.6.0-blue)
 
 ## v0.6.1预更新内容
 
