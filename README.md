@@ -1,21 +1,9 @@
-# PRTS v0.6.0
+# PRTS v0.6.1
 
 ![GitHub-license](https://img.shields.io/github/license/AgainstEntropy/PRTS)
-![Github-release](https://img.shields.io/badge/release-v0.6.0-blue)
+![Github-status](https://img.shields.io/badge/developing-v0.6.1-blue)
 
-## v0.6.0更新内容
-
-✅ ⚡ 自动代理流程全面由找色升级为找图！**稳定性&泛用性up**！
-
-✅ 🎨 优化作战代理流程！**体验up**！
-
-✅ 🔋 增加屏幕自动变暗功能！正常开始代理10秒后，屏幕将自动变暗，结束全部代理后恢复亮度！**耗电down!**
-
-✅ ✨ 增加悬浮窗拖动功能！现在只需按住悬浮窗上侧的深灰色横条即可拖动悬浮窗至任意位置！**自由度up!**
-
-✅ 🔥 简化脚本功能：删除了**本就不必存在**的 自动收取基建 和 任务奖励功能
-
-下一版本预告：
+## v0.6.1预更新内容
 
 ⬜ ✨ 增加一些自定义选项，如：是否自动变暗等......具体功能待定......
 

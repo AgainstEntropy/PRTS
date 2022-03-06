@@ -9,7 +9,7 @@ var thread_play_isAlive = 0;
 var thread_credit_isAlive = 0;
 var thread_test_isAlive = 0;
 var window = 1;
-var ready = 1;
+var main_status = 1;
 var window_main;
 var window_header;
 var mouseTime;
@@ -68,21 +68,21 @@ ui.info.attr("bg", background[2]);
 
 //界面按钮事件
 ui.start.click(() => {
-    if (ready == 1) {
+    if (main_status == 1) {
         ui.start.setText(" 关\n 闭");
         threads.start(function () { main(); });
-        ready = 2;
-    } else if (ready == 2) {
+        main_status = 2;
+    } else if (main_status == 2) {
         thread_stop();
         ui.start.setText(" 开\n 始");
         window_main.setSize(w_width, 0);
         window_header.setSize(w_width, 0);
-        ready = 3;
-    } else if (ready == 3) {
+        main_status = 3;
+    } else if (main_status == 3) {
         ui.start.setText(" 关\n 闭");
         window_main.setSize(w_width, w_height);
         window_header.setSize(w_width, 60);
-        ready = 2;
+        main_status = 2;
     }
 });
 ui.use.click(() => {

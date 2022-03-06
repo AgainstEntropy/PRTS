@@ -18,7 +18,7 @@
     "stableMode": false
   },
   "main": "PRTS.js",
-  "name": "PRTS 0.6.0",
+  "name": "PRTS 0.6.1",
   "optimization": {
     "removeAccessibilityService": false,
     "removeOpenCv": false,
@@ -33,5 +33,5 @@
   },
   "scripts": {},
   "versionCode": 1,
-  "versionName": "0.6.0"
+  "versionName": "0.6.1"
 }
