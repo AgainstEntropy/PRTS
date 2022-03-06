@@ -2,17 +2,19 @@
 
 //变量初始化
 var debug = true;
-var ver = "0.6.0";
+var ver = "0.6.1";
 var err = 1;
+var sys_lang = "cn";
 var thread_play_isAlive = 0;
 var thread_credit_isAlive = 0;
 var window = 1;
-var ready = 1;
+var main_status = 2;
 var window_main;
 var window_header;
 var mouseTime;
 var w_width = 430;
-var w_height = 300;
+var w_height = 290;
+var header_height = 60;
 var sort = [];
 var bg;
 var background = [];
@@ -33,7 +35,7 @@ for (let i of sort.slice(0, 3)) {
 }
 
 //坐标转换
-setScreenMetrics(1080, 2340);
+setScreenMetrics(device.width, device.height);
 
 //界面
 ui.statusBarColor("#FFC0CB");
@@ -54,7 +56,7 @@ ui.layout(
         <vertical gravity="center_horizontal">
             <text id="ver" w="*" h="50" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|bottom" />
             <text id="blog" w="*" h="auto" text="Modified by 逆熵之光" textSize="14sp" margin="1" textStyle="bold" typeface="monospace" textColor="#FFC0CB" gravity="center_horizontal|top" />
-        </vertical>    
+        </vertical>
     </vertical>
 );
 ui.ver.setText(`当前版本： ${ver}`);
@@ -67,23 +69,27 @@ ui.start.attr("bg", background[0]);
 ui.use.attr("bg", background[1]);
 ui.info.attr("bg", background[2]);
 
+function change_main_status() {
+    main_status = (main_status + 1) % 2;
+    window_header.setSize(w_width, main_status * header_height + 1);
+    window_header.all.setAlpha(main_status * 0.7);
+    window_main.setSize(w_width, main_status * w_height + 1);
+    window_main.all.setAlpha(main_status * 0.85);
+}
+
 //界面按钮事件
 ui.start.click(() => {
-    if (ready == 1) {
+    if (main_status == 2) {
         ui.start.setText(" 关\n 闭");
         threads.start(function () { main(); });
-        ready = 2;
-    } else if (ready == 2) {
+        main_status = 1;
+    } else if (main_status == 1) {
         thread_stop();
         ui.start.setText(" 开\n 始");
-        window_main.setSize(w_width, 0);
-        window_header.setSize(w_width, 0);
-        ready = 3;
-    } else if (ready == 3) {
+        change_main_status();
+    } else if (main_status == 0) {
         ui.start.setText(" 关\n 闭");
-        window_main.setSize(w_width, w_height);
-        window_header.setSize(w_width, 60);
-        ready = 2;
+        change_main_status();
     }
 });
 ui.use.click(() => {
@@ -123,8 +129,14 @@ function main() {
     if (requestScreenCapture(true)) {
         toast("请求截图成功")
         setTimeout(function () {
-            app.launchApp("arknights-taptap-308") //延迟2s，启动明日方舟
-            // home();
+            //延迟2s，启动明日方舟
+            switch (sys_lang) {
+                case "en":
+                    app.launchApp("arknights-taptap-308"); // 英文系统
+                    break;
+                default:
+                    app.launchApp("明日方舟"); // 中文系统
+                }
         }, 2000)
     } else {
         toast("请求截图失败");
@@ -142,18 +154,18 @@ function main() {
 
     //缩小放大界面
     window_header = floaty.rawWindow(
-        <horizontal bg="#000000" alpha="0.7" gravity="center_horizontal|center_vertical">
+        <horizontal id="all" bg="#000000" alpha="0.7" gravity="center_horizontal|center_vertical">
             <text id="title" w="385" text="当前没有操作" textSize="14sp" textColor="#ffffff" gravity="center_horizontal|center_vertical" />
         </horizontal>
     );
     window_header.setTouchable(true);
     window_header.setPosition(0, 150);
-    window_header.setSize(w_width, 60);
+    window_header.setSize(w_width, header_height);
     setInterval(() => { }, 2000);
 
     //悬浮窗界面
     window_main = floaty.rawWindow(
-        <vertical gravity="center_horizontal|center_vertical" bg="#696969" alpha="0.85">
+        <vertical id="all" gravity="center_horizontal|center_vertical" bg="#696969" alpha="0.85">
             <horizontal gravity="center_horizontal|center_vertical">
                 <button id="subtract" w="53" h="35" text="-" textSize="13sp" gravity="center_horizontal|center_vertical" />
                 <text id="num" w="50" h="35" text="0" textSize="14sp" textColor="#ffffff" gravity="center_horizontal|center_vertical" />
@@ -171,7 +183,7 @@ function main() {
         </vertical>
     );
     window_main.setTouchable(true);
-    window_main.setPosition(0, window_header.getY() + 60);
+    window_main.setPosition(0, window_header.getY() + header_height);
     window_main.setSize(w_width, w_height);
     //floaty_window.exitOnClose();
     setInterval(() => { }, 2000);
@@ -217,7 +229,7 @@ function main() {
     window_header.title.on('touch_move', (e) => {
         let [x, y] = position;
         window_header.setPosition(x + e.getRawX(), y + e.getRawY());
-        window_main.setPosition(x + e.getRawX(), y + e.getRawY() + 60);
+        window_main.setPosition(x + e.getRawX(), y + e.getRawY() + header_height);
     });
 }
 
@@ -287,6 +299,7 @@ function thread_stop() {
 function set_window_status(status) { // 0为隐藏，1为显示
     window = status;
     window_main.setSize(w_width, status * w_height + 1);
+    window_main.all.setAlpha(status * 0.85);
 }
 
 //返回首页

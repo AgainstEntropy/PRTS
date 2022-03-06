@@ -1,6 +1,9 @@
 # 安装包
 build/
 
+# debug files
+PRTS debug.js
+
 # 项目外图片/视频
 微信图片*
 *.mp4
