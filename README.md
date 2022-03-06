@@ -1,9 +1,9 @@
-# PRTS v0.6.1
+# PRTS v0.6.2
 
 ![GitHub-license](https://img.shields.io/github/license/AgainstEntropy/PRTS)
-![Github-status](https://img.shields.io/badge/developing-v0.6.1-blue)
+![Github-status](https://img.shields.io/badge/developing-v0.6.2-blue)
 
-## v0.6.1预更新内容
+## v0.6.2预更新内容
 
 ⬜ ✨ 增加一些自定义选项，如：是否自动变暗等......具体功能待定......
 
