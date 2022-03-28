@@ -360,6 +360,7 @@ function wait_until_findImg(img, img_name, config) {
         }
     }
     sleep(end_delay);
+    return p;
 }
 
 //点击api
@@ -410,7 +411,7 @@ function clickImg1_until_findImg2(img1, img2, img1_name, img2_name, config) {
         }
         sleep(delta_t);
     }
-    sleep(end_delay);
+    if (end_delay) { sleep(end_delay); }
     if (p2) { return p2; }
 }
 
@@ -491,6 +492,7 @@ function play(num) {
     var img_start_blue = images.read("res/img/开始行动蓝.jpg");
     var img_start_red = images.read("res/img/开始行动红.jpg");
     var img_takeover = images.read("res/img/接管作战.jpg");
+    var img_cost = images.read("res/img/cost.jpg");
     var img_over = images.read("res/img/行动结束.jpg");
 
     var p_red;
@@ -518,20 +520,22 @@ function play(num) {
         sleep(50 * 1000);  // 延迟60s开始检测是否结束战斗
 
         watchImg(img_takeover, "接管作战");
+        watchImg(img_cost, "cost");  // 避免中途出现作战失败，导致检测不到接管作战
 
         // 等待行动结束出现，等待过程中点击屏幕
         wait_until_findImg(img_over, "行动结束",
-            config = { 
+            config = {
                 wait_click: true,
-                click_delay: 3500 });
+                click_delay: 4000
+            });
         if (err > 5) { break; }
 
         // watchImg1_until_clickImg2(img_cost, img_over, "费用", "行动结束");
-        
+
         // 等待蓝色开始按钮出现
-        wait_until_findImg(img_start_blue, "蓝色开始行动", 
-            config = { 
-                final_click: false 
+        wait_until_findImg(img_start_blue, "蓝色开始行动",
+            config = {
+                final_click: false
             });
         if (err > 5) { break; }
     }
@@ -539,6 +543,7 @@ function play(num) {
     img_start_blue.recycle();
     img_start_red.recycle();
     img_takeover.recycle();
+    img_cost.recycle();
     img_over.recycle();
 
     device.setBrightness(b);  //恢复原始亮度
@@ -582,14 +587,16 @@ function credit() {
         sleep(100);
     }
 
-    clickImg1_until_findImg2(img_visit_construction, img_enter_construction, "访问基建",
-        config = {
-            end_delay: 4000
-        });
+    clickImg1_until_findImg2(img_visit_construction, img_enter_construction, "访问基建");
     if (err > 5) {
         thread_stop();
         sleep(100);
     }
+
+    wait_until_findImg(img_next_orange, "橙色访问下位", 
+        config = {
+            delta_time: 500
+        });
 
     for (var i = 1; i <= 10; i++) {
         window_header.title.setText(`第${i}次领取`);
@@ -597,7 +604,7 @@ function credit() {
             config = {
                 bias: { x: 30, y: 30 },
                 end_delay: 1500,
-                max_time: 5 * 1000
+                max_time: 6 * 1000
             });
         if (err > 5) {
             break;
