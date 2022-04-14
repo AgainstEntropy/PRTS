@@ -4,7 +4,7 @@
 var debug = true;
 var ver = "0.6.3";
 var err = 1;
-var sys_lang = "en";
+var sys_lang = "cn";
 var thread_play_isAlive = 0;
 var thread_credit_isAlive = 0;
 var window = 1;
@@ -493,7 +493,7 @@ function play(num) {
     var img_start_red = images.read("res/img/开始行动红.jpg");
     var img_takeover = images.read("res/img/接管作战.jpg");
     var img_cost = images.read("res/img/cost.jpg");
-    var img_over = images.read("res/img/行动结束.jpg");
+    var img_over = images.read("res/img/行动（结束）.jpg");
 
     var p_red;
 
