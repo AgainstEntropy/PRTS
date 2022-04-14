@@ -2,7 +2,7 @@
 
 //变量初始化
 var debug = true;
-var ver = "0.6.1";
+var ver = "0.6.3";
 var err = 1;
 var sys_lang = "cn";
 var thread_play_isAlive = 0;
@@ -136,7 +136,7 @@ function main() {
                     break;
                 default:
                     app.launchApp("明日方舟"); // 中文系统
-                }
+            }
         }, 2000)
     } else {
         toast("请求截图失败");
@@ -321,15 +321,16 @@ function back2main() {
     img_geer.recycle();
 }
 
-function wait_until_findImg_click(img, img_name, config) {
+function wait_until_findImg(img, img_name, config) {
     err = 1;
     // initialize configuration parameters.
     var config = (config === undefined) ? {} : config;
     var delta_time = (config.delta_time === undefined) ? 1000 : config.delta_time;
     var max_time = (config.max_time === undefined) ? 10 * 1000 : config.max_time;
-    var if_click = (config.if_click === undefined) ? true : config.if_click;
+    var wait_click = (config.wait_click === undefined) ? false : config.wait_click;
+    var final_click = (config.final_click === undefined) ? true : config.final_click;
     var click_delay = (config.click_delay === undefined) ? 1000 : config.click_delay;
-    var bias = (config.click_bias === undefined) ? { x: 15, y: 15 } : config.click_bias;
+    var bias = (config.click_bias === undefined) ? { x: 20, y: 20 } : config.click_bias;
     var end_delay = (config.end_delay === undefined) ? 0 : config.end_delay;
     var verbose = (config.verbose === undefined) ? false : config.verbose;
     var p;
@@ -338,24 +339,28 @@ function wait_until_findImg_click(img, img_name, config) {
     }
     while (true) {
         p = images.findImage(captureScreen(), img);
-        sleep(100);
+        // sleep(100);
         if (p) {
-            if (if_click) {
+            if (final_click) {
                 sleep(click_delay);
                 click(p.x + bias.x, p.y + bias.y);
             }
             break;
         } else {
+            if (wait_click) { click(600, 250); }
             sleep(delta_time);
             max_time -= delta_time;
             // console.log(max_time);
             if (max_time < 0) {
                 err = 10;
+                window_header.title.setText(`未检测到${img_name}`);
+                sleep(1000);
                 return 0;
             }
         }
     }
     sleep(end_delay);
+    return p;
 }
 
 //点击api
@@ -377,7 +382,7 @@ function clickImg1_until_findImg2(img1, img2, img1_name, img2_name, config) {
     // initialize configuration parameters.
     var config = (config === undefined) ? {} : config;
     var bias = (config.click_bias === undefined) ? { x: 15, y: 15 } : config.click_bias;
-    var delta_t = (config.delta_t === undefined) ? 500 : config.delta_t;
+    var delta_t = (config.delta_t === undefined) ? 1000 : config.delta_t;
     var end_delay = (config.end_delay === undefined) ? 0 : config.end_delay;
     var verbose = (config.verbose === undefined) ? false : config.verbose;
 
@@ -406,7 +411,7 @@ function clickImg1_until_findImg2(img1, img2, img1_name, img2_name, config) {
         }
         sleep(delta_t);
     }
-    sleep(end_delay);
+    if (end_delay) { sleep(end_delay); }
     if (p2) { return p2; }
 }
 
@@ -415,8 +420,8 @@ function watchImg1_until_clickImg2(img1, img2, img1_name, img2_name, config) {
     // initialize configuration parameters.
     var config = (config === undefined) ? {} : config;
     var bias = (config.click_bias === undefined) ? { x: 15, y: 15 } : config.click_bias;
-    var delta_t = (config.delta_t === undefined) ? 3000 : config.delta_t;
-    var click_delay = (config.click_delay === undefined) ? 3000 : config.click_delay;
+    var delta_t = (config.delta_t === undefined) ? 2000 : config.delta_t;
+    var click_delay = (config.click_delay === undefined) ? 1500 : config.click_delay;
     var end_delay = (config.end_delay === undefined) ? 2500 : config.end_delay;
     var verbose = (config.verbose === undefined) ? false : config.verbose;
 
@@ -433,8 +438,8 @@ function watchImg1_until_clickImg2(img1, img2, img1_name, img2_name, config) {
         window_header.title.setText(`正在检测${img2_name}`);
     }
     while (true) {
-        p2 = images.findImage(captureScreen(), img2); // 第二个图
         sleep(click_delay);
+        p2 = images.findImage(captureScreen(), img2); // 第二个图
         if (p2) {
             click(p2.x + bias.x, p2.y + bias.y);
             break;
@@ -443,6 +448,21 @@ function watchImg1_until_clickImg2(img1, img2, img1_name, img2_name, config) {
         }
     }
     if (end_delay) { sleep(end_delay); }
+}
+
+function watchImg(img, img_name, config) {
+    var config = (config === undefined) ? {} : config;
+    var delta_t = (config.delta_t === undefined) ? 3000 : config.delta_t;
+    var verbose = (config.verbose === undefined) ? false : config.verbose;
+
+    var p;
+    if (verbose) {
+        window_header.title.setText(`正在检测${img_name}`);
+    }
+    while (true) {
+        p = images.findImage(captureScreen(), img); // 第一个图
+        if (p) { sleep(delta_t); } else { break; }
+    }
 }
 
 // 检查关卡
@@ -472,7 +492,8 @@ function play(num) {
     var img_start_blue = images.read("res/img/开始行动蓝.jpg");
     var img_start_red = images.read("res/img/开始行动红.jpg");
     var img_takeover = images.read("res/img/接管作战.jpg");
-    var img_over = images.read("res/img/行动结束.jpg");
+    var img_cost = images.read("res/img/cost.jpg");
+    var img_over = images.read("res/img/行动（结束）.jpg");
 
     var p_red;
 
@@ -496,18 +517,33 @@ function play(num) {
         if (i == 1) {
             device.setBrightness(Math.min(50, b / 2));
         }
-        sleep(50 * 1000);  // 延迟60s开始检测是否战斗结算
+        sleep(50 * 1000);  // 延迟60s开始检测是否结束战斗
 
-        watchImg1_until_clickImg2(img_takeover, img_over, "接管作战", "行动结束");
+        watchImg(img_takeover, "接管作战");
+        watchImg(img_cost, "cost");  // 避免中途出现作战失败，导致检测不到接管作战
+
+        // 等待行动结束出现，等待过程中点击屏幕
+        wait_until_findImg(img_over, "行动结束",
+            config = {
+                wait_click: true,
+                click_delay: 4000
+            });
         if (err > 5) { break; }
 
-        wait_until_findImg_click(img_start_blue, "蓝色开始行动", config = { if_click: false });
+        // watchImg1_until_clickImg2(img_cost, img_over, "费用", "行动结束");
+
+        // 等待蓝色开始按钮出现
+        wait_until_findImg(img_start_blue, "蓝色开始行动",
+            config = {
+                final_click: false
+            });
         if (err > 5) { break; }
     }
     // 回收所有图片
     img_start_blue.recycle();
     img_start_red.recycle();
     img_takeover.recycle();
+    img_cost.recycle();
     img_over.recycle();
 
     device.setBrightness(b);  //恢复原始亮度
@@ -551,21 +587,24 @@ function credit() {
         sleep(100);
     }
 
-    clickImg1_until_findImg2(img_visit_construction, img_enter_construction, "访问基建",
-        config = {
-            end_delay: 4000
-        });
+    clickImg1_until_findImg2(img_visit_construction, img_enter_construction, "访问基建");
     if (err > 5) {
         thread_stop();
         sleep(100);
     }
 
+    wait_until_findImg(img_next_orange, "橙色访问下位", 
+        config = {
+            delta_time: 500
+        });
+
     for (var i = 1; i <= 10; i++) {
         window_header.title.setText(`第${i}次领取`);
-        sleep(1000);
-        wait_until_findImg_click(img_next_orange, "橙色访问下位",
+        wait_until_findImg(img_next_orange, "橙色访问下位",
             config = {
-                end_delay: 2000
+                bias: { x: 30, y: 30 },
+                end_delay: 1500,
+                max_time: 6 * 1000
             });
         if (err > 5) {
             break;
