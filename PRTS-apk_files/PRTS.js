@@ -2,7 +2,7 @@
 
 //变量初始化
 var debug = true;
-var ver = "0.6.2";
+var ver = "0.6.3";
 var err = 1;
 var sys_lang = "en";
 var thread_play_isAlive = 0;
