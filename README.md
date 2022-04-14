@@ -1,7 +1,7 @@
 # PRTS
 
 ![GitHub-license](https://img.shields.io/github/license/AgainstEntropy/PRTS)
-![Github-status](https://img.shields.io/badge/release-v0.6.1-blue)
+![Github-status](https://img.shields.io/badge/release-v0.6.3-blue)
 
 ## 当前发布版本功能
 
