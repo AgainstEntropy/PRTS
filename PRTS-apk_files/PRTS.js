@@ -2,7 +2,7 @@
 
 //变量初始化
 var debug = true;
-var ver = "0.6.3";
+var ver = "0.6.4";
 var err = 1;
 var sys_lang = "cn";
 var thread_play_isAlive = 0;
@@ -466,21 +466,24 @@ function watchImg(img, img_name, config) {
 }
 
 // 检查关卡
-function check_function(img, func_name) {
-    var p = images.findImage(captureScreen(), img);
-    sleep(100);
-    if (p) {
-        window_header.title.setText(`正常${func_name}`);
-        sleep(1000);
-        ui.run(() => {
-            set_window_status(0); // 隐藏菜单
-        })
-    } else {
-        window_header.title.setText(`无法${func_name}`);
-        sleep(1000);
-        thread_stop();
-        sleep(200);
+function check(imgs) {
+    var p;
+    for (var i = 0; i < imgs.length; i++) {
+        p = images.findImage(captureScreen(), imgs[i]);
+        sleep(100);
+        if (p) {
+            window_header.title.setText(`检测到开始按钮`);
+            sleep(1000);
+            ui.run(() => {
+                set_window_status(0); // 隐藏菜单
+            })
+            return imgs[i];
+        }
     }
+    window_header.title.setText(`无法检测关卡`);
+    sleep(1000);
+    thread_stop();
+    sleep(200);
 }
 
 //代理线程
@@ -490,6 +493,7 @@ function play(num) {
 
     // 读取图片
     var img_start_blue = images.read("res/img/开始行动蓝.jpg");
+    var img_start_3rd = images.read("res/img/开始行动（三周年）.jpg");
     var img_start_red = images.read("res/img/开始行动红.jpg");
     var img_takeover = images.read("res/img/接管作战.jpg");
     var img_cost = images.read("res/img/cost.jpg");
@@ -501,10 +505,10 @@ function play(num) {
     var b = device.getBrightness();
     device.setBrightnessMode(0); // 亮度设为手动模式
 
-    check_function(img_start_blue, "识别关卡");
+    var img_start = check([img_start_blue, img_start_3rd]);
 
     for (var i = 1; i <= num; i++) {
-        p_red = clickImg1_until_findImg2(img_start_blue, img_start_red, "开始行动", "红色开始行动",
+        p_red = clickImg1_until_findImg2(img_start, img_start_red, "开始行动", "红色开始行动",
             config = {
                 verbose: true
             });
@@ -533,7 +537,7 @@ function play(num) {
         // watchImg1_until_clickImg2(img_cost, img_over, "费用", "行动结束");
 
         // 等待蓝色开始按钮出现
-        wait_until_findImg(img_start_blue, "蓝色开始行动",
+        wait_until_findImg(img_start, "开始行动",
             config = {
                 final_click: false
             });
@@ -541,6 +545,7 @@ function play(num) {
     }
     // 回收所有图片
     img_start_blue.recycle();
+    img_start_3rd.recycle();
     img_start_red.recycle();
     img_takeover.recycle();
     img_cost.recycle();
